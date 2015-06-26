@@ -1,3 +1,4 @@
 *.o
 
-ugoira-play/ugoira-play
+/ugoira-dl/*.txt
+/ugoira-play/ugoira-play
