@@ -17,15 +17,14 @@ void handle_events(void)
         switch(e.type) {
             case SDL_WINDOWEVENT: {
                 switch(e.window.event) {
-                    case SDL_WINDOWEVENT_RESIZED: {
-                        SDL_Log("window %d resize %d×%d", e.window.windowID,
-                                e.window.data1, e.window.data2);
+                    case SDL_WINDOWEVENT_EXPOSED: {
+                        SDL_Log("window %d expose", e.window.windowID);
 
                         w = SDL_GetWindowFromID(e.window.windowID);
 
                         if(!w) {
                             SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-                                         "couldn't get window for resizing: %s",
+                                         "couldn't get window: %s",
                                          SDL_GetError());
                             break; // XXX
                         }
@@ -34,7 +33,7 @@ void handle_events(void)
 
                         if(!r) {
                             SDL_LogError(SDL_LOG_CATEGORY_RENDER,
-                                       "couldn't get renderer for resizing: %s",
+                                       "couldn't get renderer: %s",
                                          SDL_GetError());
                             break; // XXX
                         }
@@ -70,7 +69,11 @@ int main(int argc, char **argv)
     filename = argv[1];
     current_image = read_whole_archive(filename);
 
-    if(SDL_Init(SDL_INIT_VIDEO)) {
+    if(!current_image) {
+        return 1;
+    }
+
+    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());
 
         return 1;
