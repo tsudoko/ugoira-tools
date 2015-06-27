@@ -1,4 +1,10 @@
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <SDL.h>
+
+#include "list.h"
+#include "archive.h"
 
 void handle_events(void)
 {
@@ -53,24 +59,24 @@ int main(int argc, char **argv)
     SDL_Window   *w;
     SDL_Renderer *r;
 
+    Node* current_image;
+    char* filename;
+
+    if(argc <= 1) {
+        fprintf(stderr, "usage stub\n");
+        return 1;
+    }
+
+    filename = argv[1];
+    current_image = read_whole_archive(filename);
+
     if(SDL_Init(SDL_INIT_VIDEO)) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());
 
         return 1;
     }
 
-    // shut up clang
-    if(argc != 1) {
-        SDL_Log("%d args", argc);
-    } else {
-        SDL_Log("%d arg", 1);
-    }
-    SDL_Log("--------");
-    for(int i = 0; i < argc; i++) {
-        SDL_Log("%s", argv[i]);
-    }
-
-    w = SDL_CreateWindow("ayy",
+    w = SDL_CreateWindow(filename,
                          SDL_WINDOWPOS_UNDEFINED,
                          SDL_WINDOWPOS_UNDEFINED,
                          240,
