@@ -1,4 +1,10 @@
 *.o
 
+# ugoira files
+*.json
+*.zip
+
+# cookie files
 /ugoira-dl/*.txt
+
 /ugoira-play/ugoira-play
