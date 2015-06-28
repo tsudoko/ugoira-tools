@@ -6,8 +6,10 @@
 
 Node* list_create(void *data)
 {
-    Node *head = NULL;
-    head = malloc(sizeof(Node));
+    Node *head = malloc(sizeof(Node));
+    head->prev = NULL;
+    head->next = NULL;
+
     head->data = data;
 
     return head;
