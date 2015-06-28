@@ -25,6 +25,15 @@ Node* list_insert_after(Node* node, void *data)
     return new_node;
 }
 
+Node* list_head(Node* node)
+{
+    while(node->prev != NULL) {
+        node = node->prev;
+    }
+
+    return node;
+}
+
 void list_print(Node* node)
 {
     Node *i = NULL;

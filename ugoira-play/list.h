@@ -6,4 +6,5 @@ typedef struct node_t {
 
 Node* list_create(void *data);
 Node* list_insert_after(Node *node, void *data);
+Node* list_head(Node *node);
 void list_print(Node *node);
