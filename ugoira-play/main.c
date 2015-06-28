@@ -21,8 +21,7 @@ void handle_events(void)
             case SDL_WINDOWEVENT: {
                 switch(e.window.event) {
                     case SDL_WINDOWEVENT_EXPOSED: {
-                        SDL_Log("window %d expose", e.window.windowID);
-
+                        //SDL_Log("window %d expose", e.window.windowID);
                         w = SDL_GetWindowFromID(e.window.windowID);
 
                         if(!w) {
@@ -59,7 +58,7 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
 {
     assert(node->prev == NULL);
 
-    for(; node->next != NULL; node = node->next) {
+    for(;;) {
         SDL_RWops   *current_rwop;
         SDL_Texture *current_texture;
         SDL_Surface *current_surface;
@@ -67,9 +66,9 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
         current_rwop = (SDL_RWops*)node->data;
     
         if(IMG_isJPG(current_rwop)) {
-            SDL_Log("loaded image is a JPG");
+            SDL_Log("(%p) loaded image is a JPG", node);
         } else {
-            SDL_Log("loaded image is not a JPG");
+            SDL_Log("(%p) loaded image is not a JPG", node);
         }
     
         if(!current_rwop) {
@@ -94,6 +93,12 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
         SDL_FreeSurface(current_surface);
 
         node->data = (SDL_Texture*)current_texture;
+
+        if(node->next == NULL) {
+            break;
+        }
+
+        node = node->next;
     }
 
     return list_head(node);
@@ -103,8 +108,6 @@ int main(int argc, char **argv)
 {
     SDL_Window   *w;
     SDL_Renderer *r;
-
-    SDL_Texture *current_texture = NULL;
 
     Node *current_node;
     char *filename;
@@ -152,26 +155,35 @@ int main(int argc, char **argv)
     current_node = list_rwops_to_texture(current_node, r);
 
     time_t frame_time = time(NULL);
-    sleep(1);
+    assert(frame_time - 1 > 0);
+    frame_time -= 1;
 
     for(;;) {
         handle_events();
 
-        // TODO: move to handle_events()
-        if(time(NULL) > frame_time) {
-            SDL_Log("current node: %p", current_node);
-            if(current_node->next != NULL) {
-                current_node = current_node->next;
-            }
-            frame_time = time(NULL);
+        if(current_node->prev) {
+            assert(current_node->prev->data != NULL);
         }
 
-        assert(current_node->prev->data != NULL);
         assert(current_node->data != NULL);
 
+        // TODO: move to handle_events()
         SDL_RenderClear(r);
         SDL_RenderCopy(r, (SDL_Texture*)current_node->data, NULL, NULL);
         SDL_RenderPresent(r);
+
+        if(time(NULL) > frame_time) {
+            SDL_Log("current node: %p", current_node);
+
+            if(current_node->next != NULL) {
+                current_node = current_node->next;
+            } else {
+                SDL_Log("head");
+                current_node = list_head(current_node);
+            }
+
+            frame_time = time(NULL);
+        }
 
         SDL_Delay(16);
     }
