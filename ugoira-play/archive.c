@@ -5,6 +5,8 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include <SDL.h>
+
 #include "list.h"
 #include "archive.h"
 
@@ -17,8 +19,9 @@ Node* read_whole_archive(char *filename)
     ssize_t size;
     char    buf[4096];
 
-    FILE *extracted_file;
-    Node *current_node = NULL, *start_node = NULL;
+    char      *extracted_file;
+    SDL_RWops *rwops;
+    Node      *current_node = NULL, *start_node = NULL;
 
     int ret = ARCHIVE_FAILED;
 
@@ -52,22 +55,15 @@ Node* read_whole_archive(char *filename)
             len_to_read = sizeof(buf);
         }
 
-        extracted_file = fmemopen(NULL, total, "r+");
-
-        if(!start_node) {
-            start_node = list_create((FILE*)extracted_file);
-            current_node = start_node;
-        } else {
-            assert(current_node != NULL);
-            current_node = list_insert_after(current_node, (FILE*)extracted_file);
-        }
+        extracted_file = (char*)malloc(total);
+        char *pos = extracted_file;
 
         for(;;) {
             size = archive_read_data(a, buf, len_to_read);
 
             //fprintf(stderr, "read %zu bytes\n", size);
-            //fwrite(buf, (size_t)size, 1, stdout);
-            fwrite(buf, (size_t)size, 1, extracted_file);
+            memcpy(pos, buf, (size_t)size);
+            pos += size;
 
             if((size_t)size < sizeof(buf)) {
                 //fprintf(stderr, "read %s (%zd)\n",
@@ -75,6 +71,20 @@ Node* read_whole_archive(char *filename)
                 break;
             }
         }
+
+        rwops = SDL_RWFromMem(extracted_file, total);
+
+        assert(pos - total == extracted_file);
+        //free(extracted_file);
+
+        if(!start_node) {
+            start_node = list_create((SDL_RWops*)rwops);
+            current_node = start_node;
+        } else {
+            assert(current_node != NULL);
+            //assert(current_node->next == NULL);
+            current_node = list_insert_after(current_node, (SDL_RWops*)rwops);
+        }       
     }
 
     archive_read_free(a);
