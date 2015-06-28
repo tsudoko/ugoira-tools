@@ -53,14 +53,50 @@ void handle_events(void)
     }
 }
 
+SDL_Texture* texture_from_node(Node *node, SDL_Renderer *r)
+{
+    SDL_RWops   *current_rwop;
+    SDL_Texture *current_texture;
+    SDL_Surface *current_surface;
+
+    current_rwop = (SDL_RWops*)node->data;
+
+    if(IMG_isJPG(current_rwop)) {
+        SDL_Log("loaded image is a JPG");
+    } else {
+        SDL_Log("loaded image is not a JPG");
+    }
+
+    if(!current_rwop) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't create RWops: %s", SDL_GetError());
+    }
+
+    current_surface = IMG_Load_RW(current_rwop, 0);
+
+    if(!current_surface) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't load image: %s", IMG_GetError());
+    }
+
+    current_texture = SDL_CreateTextureFromSurface(r, current_surface);
+
+    if(!current_texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't create texture: %s", IMG_GetError());
+    }
+
+    SDL_FreeSurface(current_surface);
+
+    return current_texture;
+}
+
 int main(int argc, char **argv)
 {
     SDL_Window   *w;
     SDL_Renderer *r;
 
-    SDL_Surface *current_surface;
     SDL_Texture *current_texture;
-    SDL_RWops   *current_rwop;
 
     Node *current_node;
     char *filename;
@@ -105,43 +141,20 @@ int main(int argc, char **argv)
                      "renderer creation failed: %s", SDL_GetError());
     }
 
-    current_rwop = (SDL_RWops*)current_node->data;
-
-    if(IMG_isJPG(current_rwop)) {
-        SDL_Log("loaded image is a JPG");
-    } else {
-        SDL_Log("loaded image is not a JPG");
-    }
-
-    if(!current_rwop) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                     "couldn't create a RW: %s", SDL_GetError());
-    }
-
-    current_surface = IMG_Load_RW(current_rwop, 0);
-
-    if(!current_surface) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER,
-                     "couldn't load image: %s", IMG_GetError());
-    }
-
-    current_texture = SDL_CreateTextureFromSurface(r, current_surface);
-
-    if(!current_texture) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                     "couldn't create texture: %s", IMG_GetError());
-    }
-    SDL_FreeSurface(current_surface);
-
-    //SDL_SetRenderDrawColor(r, 249, 38, 114, 255);
-
     for(;;) {
         handle_events();
 
         // TODO: move to handle_events()
+        SDL_Log("current node: %p", current_node);
+        current_texture = texture_from_node(current_node, r);
+        if(current_node->next != NULL) {
+            current_node = current_node->next;
+        }
+
         SDL_RenderClear(r);
         SDL_RenderCopy(r, current_texture, NULL, NULL);
         SDL_RenderPresent(r);
+        SDL_Delay(1000);
 
         SDL_Delay(16);
     }
