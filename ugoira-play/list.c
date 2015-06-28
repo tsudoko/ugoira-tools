@@ -15,7 +15,7 @@ Node* list_create(void *data)
     return head;
 }
 
-Node* list_insert_after(Node* node, void *data)
+Node* list_insert_after(Node *node, void *data)
 {
     Node *new_node = list_create(data);
 
@@ -25,7 +25,7 @@ Node* list_insert_after(Node* node, void *data)
     return new_node;
 }
 
-Node* list_head(Node* node)
+Node* list_head(Node *node)
 {
     while(node->prev != NULL) {
         node = node->prev;
@@ -34,7 +34,7 @@ Node* list_head(Node* node)
     return node;
 }
 
-void list_print(Node* node)
+void list_print(Node *node)
 {
     Node *i = NULL;
 
