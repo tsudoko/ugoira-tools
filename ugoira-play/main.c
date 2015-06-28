@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <assert.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
     SDL_Window   *w;
     SDL_Renderer *r;
 
-    SDL_Texture *current_texture;
+    SDL_Texture *current_texture = NULL;
 
     Node *current_node;
     char *filename;
@@ -141,20 +143,27 @@ int main(int argc, char **argv)
                      "renderer creation failed: %s", SDL_GetError());
     }
 
+    time_t frame_time = time(NULL);
+    sleep(1);
+
     for(;;) {
         handle_events();
 
         // TODO: move to handle_events()
-        SDL_Log("current node: %p", current_node);
-        current_texture = texture_from_node(current_node, r);
-        if(current_node->next != NULL) {
-            current_node = current_node->next;
+        if(time(NULL) > frame_time) {
+            SDL_Log("current node: %p", current_node);
+            current_texture = texture_from_node(current_node, r);
+            if(current_node->next != NULL) {
+                current_node = current_node->next;
+            }
+            frame_time = time(NULL);
         }
+
+        assert(current_texture != NULL);
 
         SDL_RenderClear(r);
         SDL_RenderCopy(r, current_texture, NULL, NULL);
         SDL_RenderPresent(r);
-        SDL_Delay(1000);
 
         SDL_Delay(16);
     }
