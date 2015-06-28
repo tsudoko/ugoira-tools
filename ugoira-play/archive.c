@@ -6,6 +6,7 @@
 #include <archive_entry.h>
 
 #include "list.h"
+#include "archive.h"
 
 Node* read_whole_archive(char *filename)
 {
@@ -17,19 +18,19 @@ Node* read_whole_archive(char *filename)
     char    buf[4096];
 
     FILE *extracted_file;
-    Node *current_node, *start_node = NULL;
+    Node *current_node = NULL, *start_node = NULL;
 
     int ret = ARCHIVE_FAILED;
 
     if((a = archive_read_new()) == NULL) {
-        fprintf(stderr, "archive_read_new() failed: %d", ret);
+        fprintf(stderr, "archive_read_new() failed: %d\n", ret);
         return NULL;
     }
 
     ret = archive_read_support_format_zip(a);
 
     if(ret != ARCHIVE_OK) {
-        fprintf(stderr, "archive_read_support_format_zip() failed: %d", ret);
+        fprintf(stderr, "archive_read_support_format_zip() failed: %d\n", ret);
         archive_read_free(a);
         return NULL;
     }
@@ -37,7 +38,7 @@ Node* read_whole_archive(char *filename)
     ret = archive_read_open_filename(a, filename, 10240);
 
     if(ret != ARCHIVE_OK) {
-        fprintf(stderr, "archive_read_open_filename() failed: %d", ret);
+        fprintf(stderr, "archive_read_open_filename() failed: %d\n", ret);
         archive_read_free(a);
         return NULL;
     }
@@ -54,11 +55,11 @@ Node* read_whole_archive(char *filename)
         extracted_file = fmemopen(NULL, total, "r+");
 
         if(!start_node) {
-            start_node = list_create(extracted_file);
+            start_node = list_create((FILE*)extracted_file);
             current_node = start_node;
         } else {
             assert(current_node != NULL);
-            current_node = list_insert_after(current_node, extracted_file);
+            current_node = list_insert_after(current_node, (FILE*)extracted_file);
         }
 
         for(;;) {
