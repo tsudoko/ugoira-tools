@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <assert.h>
 #include <time.h>
 #include <math.h>
@@ -125,7 +126,7 @@ int main(int argc, char **argv)
     char *filename;
 
     if(argc <= 1) {
-        fprintf(stderr, "usage stub\n");
+        fprintf(stderr, "usage: %s file.zip\n", basename(argv[0]));
         return 1;
     }
 
