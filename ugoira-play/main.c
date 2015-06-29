@@ -70,36 +70,26 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
     for(;;) {
         SDL_RWops   *current_rwop;
         SDL_Texture *current_texture;
-        SDL_Surface *current_surface;
-    
+
         current_rwop = (SDL_RWops*)node->data;
-    
+
+        if(!current_rwop) {
+            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                         "couldn't load RWops: %s", SDL_GetError());
+        }
+
         if(IMG_isJPG(current_rwop)) {
             SDL_Log("(%p) loaded image is a JPG", node);
         } else {
             SDL_Log("(%p) loaded image is not a JPG", node);
         }
-    
-        if(!current_rwop) {
-            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                         "couldn't create RWops: %s", SDL_GetError());
-        }
-    
-        current_surface = IMG_Load_RW(current_rwop, 0);
-    
-        if(!current_surface) {
-            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                         "couldn't load image: %s", IMG_GetError());
-        }
-    
-        current_texture = SDL_CreateTextureFromSurface(r, current_surface);
-    
+
+        current_texture = IMG_LoadTexture_RW(r, current_rwop, 0);
+
         if(!current_texture) {
             SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                          "couldn't create texture: %s", IMG_GetError());
         }
-    
-        SDL_FreeSurface(current_surface);
 
         node->data = (SDL_Texture*)current_texture;
 
