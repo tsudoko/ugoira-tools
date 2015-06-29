@@ -5,5 +5,6 @@
  */
 
 void handle_events(void);
+uint64_t get_time_ms(void);
 Node* list_rwops_to_texture(Node *node, SDL_Renderer *r);
 int main(int argc, char **argv);

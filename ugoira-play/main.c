@@ -6,8 +6,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <assert.h>
+#include <time.h>
+#include <math.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -112,6 +113,19 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
     return list_head(node);
 }
 
+uint64_t get_time_ms(void)
+{
+    uint64_t        ms;
+    time_t          s;
+    struct timespec spec;
+
+    clock_gettime(CLOCK_MONOTONIC, &spec);
+    s = spec.tv_sec;
+    ms = (uint64_t)(s * 1000) + (uint64_t)(spec.tv_nsec / 1.0e6);
+
+    return ms;
+}
+
 int main(int argc, char **argv)
 {
     SDL_Window   *w;
@@ -162,9 +176,9 @@ int main(int argc, char **argv)
 
     current_node = list_rwops_to_texture(current_node, r);
 
-    time_t frame_time = time(NULL);
-    assert(frame_time - 1 > 0);
-    frame_time -= 1;
+    uint64_t frame_time = get_time_ms();
+    //assert((int64_t)(frame_time - 1000) > 0);
+    //frame_time -= 1000;
 
     for(;;) {
         handle_events();
@@ -180,7 +194,7 @@ int main(int argc, char **argv)
         SDL_RenderCopy(r, (SDL_Texture*)current_node->data, NULL, NULL);
         SDL_RenderPresent(r);
 
-        if(time(NULL) > frame_time) {
+        if(get_time_ms() / 1000 > frame_time / 1000) {
             SDL_Log("current node: %p", current_node);
 
             if(current_node->next != NULL) {
@@ -190,7 +204,7 @@ int main(int argc, char **argv)
                 current_node = list_head(current_node);
             }
 
-            frame_time = time(NULL);
+            frame_time = get_time_ms();
         }
 
         SDL_Delay(16);

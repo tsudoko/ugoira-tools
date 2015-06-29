@@ -5,7 +5,7 @@ CFLAGS += -g
 #CFLAGS += -fsanitize=address
 
 CFLAGS += -I/usr/include/SDL2
-LDFLAGS += -larchive  -lSDL2_image  -lSDL2 -lpthread
+LDFLAGS += -larchive  -lSDL2_image  -lSDL2 -lpthread  -lm
 
 SRC = list.c archive.c main.c
 OBJ = $(SRC:.c=.o)
