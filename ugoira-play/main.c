@@ -19,51 +19,6 @@
 
 #include "main.h"
 
-void handle_events(void)
-{
-    SDL_Event e;
-
-    SDL_Window   *w;
-    SDL_Renderer *r;
-
-    while(SDL_PollEvent(&e)) {
-        switch(e.type) {
-            case SDL_WINDOWEVENT: {
-                switch(e.window.event) {
-                    case SDL_WINDOWEVENT_EXPOSED: {
-                        //SDL_Log("window %d expose", e.window.windowID);
-                        w = SDL_GetWindowFromID(e.window.windowID);
-
-                        if(!w) {
-                            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                                         "expose: couldn't get window: %s",
-                                         SDL_GetError());
-                            break; // XXX
-                        }
-
-                        r = SDL_GetRenderer(w);
-
-                        if(!r) {
-                            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                                         "expose: couldn't get renderer: %s",
-                                         SDL_GetError());
-                            break; // XXX
-                        }
-
-                        SDL_RenderClear(r);
-                        SDL_RenderPresent(r);
-                        break;
-                    }
-                }
-                break;
-            }
-            case SDL_QUIT: {
-                exit(0);
-            }
-        }
-    }
-}
-
 Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
 {
     assert(node->prev == NULL);
@@ -115,6 +70,14 @@ uint64_t get_time_ms(void)
     ms = (uint64_t)(s * 1000) + (uint64_t)(spec.tv_nsec / 1.0e6);
 
     return ms;
+}
+
+void render_frame(Node *node, SDL_Renderer *r)
+{
+    SDL_RenderClear(r);
+    SDL_RenderCopy(r, (SDL_Texture*)node->data, NULL, NULL);
+    SDL_RenderPresent(r);
+
 }
 
 int main(int argc, char **argv)
@@ -183,8 +146,26 @@ int main(int argc, char **argv)
     //assert((int64_t)(frame_time - 1000) > 0);
     //frame_time -= 1000;
 
+    SDL_Event e;
+
     for(;;) {
-        handle_events();
+        while(SDL_PollEvent(&e)) {
+            switch(e.type) {
+                case SDL_WINDOWEVENT: {
+                    switch(e.window.event) {
+                        case SDL_WINDOWEVENT_EXPOSED: {
+                            //SDL_Log("window %d expose", e.window.windowID);
+                            render_frame(current_node, r);
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case SDL_QUIT: {
+                    exit(0);
+                }
+            }
+        }
 
         if(current_node->prev) {
             assert(current_node->prev->data != NULL);
@@ -192,14 +173,9 @@ int main(int argc, char **argv)
 
         assert(current_node->data != NULL);
 
-        //  TODO: move to handle_events()
-        SDL_RenderClear(r);
-        SDL_RenderCopy(r, (SDL_Texture*)current_node->data, NULL, NULL);
-        SDL_RenderPresent(r);
-        // /TODO
-
         if(get_time_ms() / 1000 > frame_time / 1000) {
             SDL_Log("current node: %p", current_node);
+            render_frame(current_node, r);
 
             if(current_node->next != NULL) {
                 current_node = current_node->next;
