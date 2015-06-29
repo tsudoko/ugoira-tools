@@ -34,8 +34,8 @@ void handle_events(void)
                         w = SDL_GetWindowFromID(e.window.windowID);
 
                         if(!w) {
-                            SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-                                         "couldn't get window: %s",
+                            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                                         "expose: couldn't get window: %s",
                                          SDL_GetError());
                             break; // XXX
                         }
@@ -43,8 +43,8 @@ void handle_events(void)
                         r = SDL_GetRenderer(w);
 
                         if(!r) {
-                            SDL_LogError(SDL_LOG_CATEGORY_RENDER,
-                                       "couldn't get renderer: %s",
+                            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                                         "expose: couldn't get renderer: %s",
                                          SDL_GetError());
                             break; // XXX
                         }
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
                          SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE);
 
     if(!w) {
-        SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                      "window creation failed: %s", SDL_GetError());
         return 1;
     }
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     r = SDL_CreateRenderer(w, -1, 0);
 
     if(!r) {
-        SDL_LogError(SDL_LOG_CATEGORY_RENDER,
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                      "renderer creation failed: %s", SDL_GetError());
     }
 
