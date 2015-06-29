@@ -5,6 +5,6 @@
  */
 
 uint64_t get_time_ms(void);
-Node* list_rwops_to_texture(Node *node, SDL_Renderer *r);
+Node* generate_textures(Node *node, SDL_Renderer *r);
 void render_frame(Node *node, SDL_Renderer *r);
 int main(int argc, char **argv);

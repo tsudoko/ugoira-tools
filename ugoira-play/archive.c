@@ -14,6 +14,7 @@
 #include <SDL.h>
 
 #include "list.h"
+#include "frame.h"
 
 #include "archive.h"
 
@@ -27,8 +28,9 @@ Node* read_whole_archive(char *filename)
     char    buf[4096];
 
     char      *extracted_file;
-    SDL_RWops *rwops;
     Node      *current_node = NULL, *start_node = NULL;
+
+    Frame *frame;
 
     int ret = ARCHIVE_FAILED;
 
@@ -54,6 +56,10 @@ Node* read_whole_archive(char *filename)
     }
 
     while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        frame = malloc(sizeof *frame);
+
+        frame->filename = archive_entry_pathname(entry);
+
         total = (size_t)archive_entry_size(entry);
 
         if(total < sizeof(buf)) {
@@ -79,18 +85,19 @@ Node* read_whole_archive(char *filename)
             }
         }
 
-        rwops = SDL_RWFromMem(extracted_file, total);
-
         assert(pos - total == extracted_file);
         //free(extracted_file);
 
+        frame->image = extracted_file;
+        frame->image_size = total;
+
         if(!start_node) {
-            start_node = list_create((SDL_RWops*)rwops);
+            start_node = list_create((Frame*)frame);
             current_node = start_node;
         } else {
             assert(current_node != NULL);
             assert(current_node->next == NULL);
-            current_node = list_insert_after(current_node, (SDL_RWops*)rwops);
+            current_node = list_insert_after(current_node, (Frame*)frame);
         }       
     }
 

@@ -17,22 +17,27 @@
 
 #include "list.h"
 #include "archive.h"
+#include "frame.h"
 
 #include "main.h"
 
-Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
+Node* generate_textures(Node *node, SDL_Renderer *r)
 {
     assert(node->prev == NULL);
 
-    for(;;) {
-        SDL_RWops   *current_rwop;
-        SDL_Texture *current_texture;
+    SDL_RWops   *current_rwop;
+    SDL_Texture *current_texture;
 
-        current_rwop = (SDL_RWops*)node->data;
+    Frame *frame;
+
+    for(;;) {
+        frame = (Frame*)node->data;
+
+        current_rwop = SDL_RWFromMem(frame->image, frame->image_size);
 
         if(!current_rwop) {
             SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                         "couldn't load RWops: %s", SDL_GetError());
+                         "couldn't create RWops: %s", SDL_GetError());
         }
 
         if(IMG_isJPG(current_rwop)) {
@@ -48,7 +53,7 @@ Node* list_rwops_to_texture(Node *node, SDL_Renderer *r)
                          "couldn't create texture: %s", IMG_GetError());
         }
 
-        node->data = (SDL_Texture*)current_texture;
+        frame->texture = current_texture;
 
         if(node->next == NULL) {
             break;
@@ -76,7 +81,7 @@ uint64_t get_time_ms(void)
 void render_frame(Node *node, SDL_Renderer *r)
 {
     SDL_RenderClear(r);
-    SDL_RenderCopy(r, (SDL_Texture*)node->data, NULL, NULL);
+    SDL_RenderCopy(r, ((Frame*)node->data)->texture, NULL, NULL);
     SDL_RenderPresent(r);
 
 }
@@ -135,10 +140,10 @@ int main(int argc, char **argv)
                      "renderer creation failed: %s", SDL_GetError());
     }
 
-    current_node = list_rwops_to_texture(current_node, r);
+    current_node = generate_textures(current_node, r);
 
     int width, height;
-    SDL_QueryTexture((SDL_Texture*)current_node->data,
+    SDL_QueryTexture(((Frame*)current_node->data)->texture,
                      NULL, NULL, &width, &height);
 
     SDL_SetWindowSize(w, width, height);
