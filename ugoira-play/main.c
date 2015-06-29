@@ -210,7 +210,8 @@ int main(int argc, char **argv)
 
             assert(current_node->data != NULL);
 
-            SDL_Log("current node: %p", current_node);
+            SDL_Log("current node: %p (%s)",
+                    current_node, ((Frame*)current_node->data)->filename);
             render_frame(current_node, r);
 
             if(current_node->next != NULL) {

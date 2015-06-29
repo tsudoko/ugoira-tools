@@ -58,7 +58,7 @@ Node* read_whole_archive(char *filename)
     while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
         frame = malloc(sizeof *frame);
 
-        frame->filename = archive_entry_pathname(entry);
+        strcpy(frame->filename, archive_entry_pathname(entry));
 
         total = (size_t)archive_entry_size(entry);
 
