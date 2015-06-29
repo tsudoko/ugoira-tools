@@ -159,7 +159,7 @@ int main(int argc, char **argv)
                          SDL_WINDOWPOS_UNDEFINED,
                          640,
                          420,
-                         SDL_WINDOW_RESIZABLE);
+                         SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE);
 
     if(!w) {
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
@@ -175,6 +175,7 @@ int main(int argc, char **argv)
     }
 
     current_node = list_rwops_to_texture(current_node, r);
+    SDL_ShowWindow(w);
 
     uint64_t frame_time = get_time_ms();
     //assert((int64_t)(frame_time - 1000) > 0);
@@ -189,10 +190,11 @@ int main(int argc, char **argv)
 
         assert(current_node->data != NULL);
 
-        // TODO: move to handle_events()
+        //  TODO: move to handle_events()
         SDL_RenderClear(r);
         SDL_RenderCopy(r, (SDL_Texture*)current_node->data, NULL, NULL);
         SDL_RenderPresent(r);
+        // /TODO
 
         if(get_time_ms() / 1000 > frame_time / 1000) {
             SDL_Log("current node: %p", current_node);

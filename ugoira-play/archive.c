@@ -89,7 +89,7 @@ Node* read_whole_archive(char *filename)
             current_node = start_node;
         } else {
             assert(current_node != NULL);
-            //assert(current_node->next == NULL);
+            assert(current_node->next == NULL);
             current_node = list_insert_after(current_node, (SDL_RWops*)rwops);
         }       
     }
