@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# This work is subject to the CC0 1.0 Universal (CC0 1.0) Public Domain
+# Dedication license. Its contents can be found in the LICENSE file or at
+# <http://creativecommons.org/publicdomain/zero/1.0/>
+
 from getopt import getopt
 import urllib.request
 import http.cookiejar
