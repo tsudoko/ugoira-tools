@@ -144,6 +144,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't enable linear filtering");
+    }
+
     w = SDL_CreateWindow(filename,
                          SDL_WINDOWPOS_UNDEFINED,
                          SDL_WINDOWPOS_UNDEFINED,
@@ -165,6 +170,12 @@ int main(int argc, char **argv)
     }
 
     current_node = list_rwops_to_texture(current_node, r);
+
+    int width, height;
+    SDL_QueryTexture((SDL_Texture*)current_node->data,
+                     NULL, NULL, &width, &height);
+
+    SDL_SetWindowSize(w, width, height);
     SDL_ShowWindow(w);
 
     uint64_t frame_time = get_time_ms();
