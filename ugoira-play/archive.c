@@ -14,6 +14,7 @@
 #include <SDL.h>
 
 #include "list.h"
+
 #include "archive.h"
 
 Node* read_whole_archive(char *filename)

@@ -15,6 +15,8 @@
 #include "list.h"
 #include "archive.h"
 
+#include "main.h"
+
 void handle_events(void)
 {
     SDL_Event e;
