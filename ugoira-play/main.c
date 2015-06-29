@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <libgen.h>
 #include <assert.h>
 #include <time.h>
@@ -87,6 +88,7 @@ int main(int argc, char **argv)
 
     Node *current_node;
     char *filename;
+    bool  paused = false;
 
     if(argc <= 1) {
         fprintf(stderr, "usage: %s file.zip\n", basename(argv[0]));
@@ -161,19 +163,48 @@ int main(int argc, char **argv)
                     }
                     break;
                 }
+
+                case SDL_KEYUP: {
+                    switch(e.key.keysym.sym) {
+                        case SDLK_q: {
+                            if(e.key.keysym.mod == KMOD_NONE) {
+                                SDL_Event quit_event;
+                                quit_event.type = SDL_QUIT;
+
+                                SDL_PushEvent(&quit_event);
+                            }
+                            break;
+                        }
+
+                        case SDLK_SPACE: {
+                            if(e.key.keysym.mod == KMOD_NONE) {
+                                if(paused) {
+                                    paused = false;
+                                } else {
+                                    paused = true;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+
                 case SDL_QUIT: {
+                    SDL_Log("got quit event");
                     exit(0);
                 }
             }
         }
 
-        if(current_node->prev) {
+        // FIXME: pausing breaks timing
+        if(!paused && (get_time_ms() / 1000 > frame_time / 1000)) {
+            if(current_node->prev) {
             assert(current_node->prev->data != NULL);
-        }
+            }
 
-        assert(current_node->data != NULL);
+            assert(current_node->data != NULL);
 
-        if(get_time_ms() / 1000 > frame_time / 1000) {
             SDL_Log("current node: %p", current_node);
             render_frame(current_node, r);
 
