@@ -33,6 +33,10 @@ Node* list_insert_after(Node *node, void *data)
 
 Node* list_head(Node *node)
 {
+    if(node == NULL) {
+        return node;
+    }
+
     while(node->prev != NULL) {
         node = node->prev;
     }
@@ -43,6 +47,11 @@ Node* list_head(Node *node)
 void list_print(Node *node)
 {
     Node *i = NULL;
+
+    if(node == NULL) {
+        printf("[]\n");
+        return;
+    }
 
     assert(node->prev == NULL); // FIXME
     printf("[");

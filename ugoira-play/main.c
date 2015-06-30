@@ -46,7 +46,7 @@ Node* generate_textures(Node *node, SDL_Renderer *r)
             SDL_Log("(%p) loaded image is not a JPG", node);
         }
 
-        current_texture = IMG_LoadTexture_RW(r, current_rwop, 0);
+        current_texture = IMG_LoadTexture_RW(r, current_rwop, true);
 
         if(!current_texture) {
             SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -197,6 +197,32 @@ int main(int argc, char **argv)
 
                 case SDL_QUIT: {
                     SDL_Log("got quit event");
+
+                    Node *temp;
+
+                    current_node = list_head(current_node);
+                    do {
+                        Frame *frame = (Frame*)current_node->data;
+
+                        free(frame->image);
+                        frame->image = NULL;
+
+                        SDL_DestroyTexture(frame->texture);
+                        frame->texture = NULL;
+
+                        free(frame);
+                        frame = NULL;
+
+                        temp = current_node->next;
+
+                        free(current_node);
+                        current_node = NULL;
+
+                        current_node = temp;
+                    } while(current_node != NULL);
+
+                    SDL_DestroyRenderer(r);
+                    SDL_DestroyWindow(w);
                     exit(0);
                 }
             }
