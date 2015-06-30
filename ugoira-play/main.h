@@ -4,7 +4,9 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
-uint64_t get_time_ms(void);
 Node* generate_textures(Node *node, SDL_Renderer *r);
+uint64_t get_time_ms(void);
 void render_frame(Node *node, SDL_Renderer *r);
+void switch_filtering_mode(void);
+
 int main(int argc, char **argv);

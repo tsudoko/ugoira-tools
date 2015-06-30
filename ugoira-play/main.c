@@ -86,6 +86,21 @@ void render_frame(Node *node, SDL_Renderer *r)
 
 }
 
+void switch_filtering_mode(void)
+{
+    SDL_bool ret;
+
+    if(strcmp(SDL_GetHint(SDL_HINT_RENDER_SCALE_QUALITY), "1") == 0) {
+        ret = SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    } else {
+        ret = SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+    }
+
+    if(!ret) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "couldn't switch filtering mode");
+    }
+}
+
 int main(int argc, char **argv)
 {
     SDL_Window   *w;
@@ -170,26 +185,30 @@ int main(int argc, char **argv)
                 }
 
                 case SDL_KEYUP: {
-                    switch(e.key.keysym.sym) {
-                        case SDLK_q: {
-                            if(e.key.keysym.mod == KMOD_NONE) {
+                    if(e.key.keysym.mod == KMOD_NONE) {
+                        switch(e.key.keysym.sym) {
+                            case SDLK_q: {
                                 SDL_Event quit_event;
                                 quit_event.type = SDL_QUIT;
 
                                 SDL_PushEvent(&quit_event);
+                                break;
                             }
-                            break;
-                        }
 
-                        case SDLK_SPACE: {
-                            if(e.key.keysym.mod == KMOD_NONE) {
+                            case SDLK_a: {
+                                switch_filtering_mode();
+                                generate_textures(list_head(current_node), r);
+                                break;
+                            }
+
+                            case SDLK_SPACE: {
                                 if(paused) {
                                     paused = false;
                                 } else {
                                     paused = true;
                                 }
+                                break;
                             }
-                            break;
                         }
                     }
                     break;
