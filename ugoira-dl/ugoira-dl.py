@@ -4,6 +4,7 @@
 # Dedication license. Its contents can be found in the LICENSE file or at
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
+from getpass import getpass
 from getopt import getopt
 import http.cookiejar
 import requests
@@ -16,7 +17,32 @@ SMALL_REGEX = "pixiv\.context\.ugokuIllustData            = (.*);pixiv"
 SMALL_REGEX_NOLOGIN = "pixiv\.context\.ugokuIllustData  = (.*\}\]\});"
 LARGE_REGEX = "pixiv\.context\.ugokuIllustFullscreenData  = (.*\}\]\});"
 
-verbose = False
+
+def save_cookies(cookies, filename):
+    cookiejar = http.cookiejar.MozillaCookieJar(filename)
+    for c in cookies:
+        args = dict(vars(c).items())
+        args['rest'] = args['_rest']
+        del args['_rest']
+
+        c = http.cookiejar.Cookie(**args)
+        cookiejar.set_cookie(c)
+    cookiejar.save(filename)
+
+
+def pixiv_login(username, password):
+    s = requests.Session()
+
+    data = {
+        "mode": "login",
+        "pixiv_id": username,
+        "pass": password,
+        "skip": 1,
+    }
+
+    s.post("https://www.secure.pixiv.net/login.php", data=data)
+
+    return s.cookies
 
 
 def get_metadata(text, regex=SMALL_REGEX_NOLOGIN):
@@ -43,8 +69,7 @@ def download_ugoira(url, cookies=None):
         print("%s: downloading small version of %s" %
               (os.path.basename(sys.argv[0]), filename))
 
-    if verbose:
-        print("dl", filename)
+    print("dl", filename)
 
     r = requests.get(metadata['src'], headers={"Referer": url}, stream=True)
 
@@ -59,22 +84,56 @@ def download_ugoira(url, cookies=None):
 
 
 def main():
-    opts, args = getopt(sys.argv[1:], "vb:", ["verbose", "cookie-file="])
+    OPTS_SHORT = "b:c:p:u:Uv"
+    OPTS_LONG = ["cookie-file=", "--cookie-jar=", "password=", "username=",
+                 "unattended"]
+    opts, args = getopt(sys.argv[1:], OPTS_SHORT, OPTS_LONG)
+
+    username = None
+    password = None
+    cookie_output_filename = None
     cookies = None
+    unattended = False
 
     for o, a in opts:
         if o in ("-b", "--cookie-file"):
             cookies = http.cookiejar.MozillaCookieJar(a)
             cookies.load()
-        elif o in ("-v", "--verbose"):
-            verbose = True
+        elif o in ("-c", "--cookie-jar"):
+            cookie_output_filename = a
+        elif o in ("-u", "--username"):
+            if cookies:
+                print("Using cookies from %s, ignoring username supplied from"
+                      "the command line" % cookies.filename)
+            else:
+                username = a
+        elif o in ("-p", "--password"):
+            if cookies:
+                print("Using cookies from %s, ignoring password supplied from"
+                      "the command line" % cookies.filename)
+            else:
+                password = a
+        elif o in ("-U", "--unattended"):
+            unattended = True
 
     if len(args) < 1:
         print("usage: %s [-b cookie_jar] URL..." %
               os.path.basename(sys.argv[0]), file=sys.stderr)
     else:
+        if username and password:
+            cookies = pixiv_login(username, password)
+        elif not unattended and not cookies:
+            if not username:
+                username = input("Pixiv ID: ")
+            if not password:
+                password = getpass("Password: ")
+            cookies = pixiv_login(username, password)
+
         for arg in args:
             download_ugoira(arg, cookies)
+
+        if (cookies and cookie_output_filename):
+            save_cookies(cookies, cookie_output_filename)
 
 if __name__ == "__main__":
     main()
