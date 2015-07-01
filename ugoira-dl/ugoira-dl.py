@@ -5,8 +5,8 @@
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
 from getopt import getopt
-import urllib.request
 import http.cookiejar
+import requests
 import os.path
 import json
 import sys
@@ -32,31 +32,24 @@ def download_ugoira(url, cookies):
     else:
         regex = SMALL_REGEX
 
-    request = urllib.request.Request(url=url)
-    cookies.add_cookie_header(request)
+    r = requests.get(url, cookies=cookies)
 
-    with urllib.request.urlopen(request) as r:
-        metadata = get_metadata(r.read().decode("utf-8"), regex)
-        filename = metadata['src'].split('/')[-1]
+    metadata = get_metadata(r.text, regex)
+    filename = metadata['src'].split('/')[-1]
 
-        if verbose:
-            print("dl", filename)
+    if verbose:
+        print("dl", filename)
 
-        request = urllib.request.Request(url=metadata['src'])
-        request.add_header("Referer", url)
-        #cookies.add_cookie_header(request)
+    r = requests.get(metadata['src'], headers={"Referer":url}, stream=True)
 
-        fr = urllib.request.urlopen(request)
-
-        with open(filename, "wb") as f:
-            while True:
-                chunk = fr.read(1024)
-                if not chunk: break
+    with open(filename, "wb") as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:
                 f.write(chunk)
                 f.flush()
 
-        with open(filename.replace(".zip", ".json"), "w") as f:
-            json.dump(metadata, f, indent=4)
+    with open(filename.replace(".zip", ".json"), "w") as f:
+        json.dump(metadata, f, indent=4)
 
 
 def main():
