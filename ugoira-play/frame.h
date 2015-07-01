@@ -7,11 +7,14 @@
 #include <SDL.h>
 
 typedef struct frame_t {
-    char     filename[7]; // "file"  in ugokuIllustData
-    uint16_t duration;    // "delay" in ugokuIllustData
+    char     filename[11]; // "file"  in ugokuIllustData
+    uint16_t duration;     // "delay" in ugokuIllustData
 
     char   *image;
     size_t  image_size;
 
     SDL_Texture *texture;
 } Frame;
+
+Node* get_frame_with_filename(Node *node, const char *filename);
+void get_frame_durations(Node *node, const char *filename);

@@ -90,6 +90,7 @@ Node* read_whole_archive(char *filename)
 
         frame->image = extracted_file;
         frame->image_size = total;
+        frame->duration = 0;
 
         if(!start_node) {
             start_node = list_create((Frame*)frame);

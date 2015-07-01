@@ -119,10 +119,32 @@ int main(int argc, char **argv)
     current_node = read_whole_archive(filename);
 
     if(!current_node) {
-        fprintf(stderr, "current_node is NULL\n");
-
+        fprintf(stderr, "no frames\n");
         return 1;
     }
+
+    char     *json_filename;
+    uint64_t  json_filename_length;
+
+    json_filename_length = strlen(filename) + 1; // foo.zip -> foo.json
+    json_filename = (char *)malloc((json_filename_length + 1)* sizeof(char));
+
+    if(!json_filename) {
+        fprintf(stderr, "couldn't allocate memory for json_filename\n");
+        return 1;
+    }
+
+
+    strcpy(json_filename, filename);
+
+    json_filename[json_filename_length - 4] =  'j';
+    json_filename[json_filename_length - 3] =  's';
+    json_filename[json_filename_length - 2] =  'o';
+    json_filename[json_filename_length - 1] =  'n';
+    json_filename[json_filename_length]     = '\0';
+
+    get_frame_durations(current_node, json_filename);
+    free(json_filename);
 
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());
@@ -169,6 +191,10 @@ int main(int argc, char **argv)
     //frame_time -= 1000;
 
     SDL_Event e;
+
+    Frame     *current_frame;
+    Frame     *prev_frame;
+    uint16_t   duration;
 
     for(;;) {
         while(SDL_PollEvent(&e)) {
@@ -239,6 +265,7 @@ int main(int argc, char **argv)
 
                         current_node = temp;
                     } while(current_node != NULL);
+                    assert(temp == NULL);
 
                     SDL_DestroyRenderer(r);
                     SDL_DestroyWindow(w);
@@ -247,16 +274,24 @@ int main(int argc, char **argv)
             }
         }
 
+        current_frame = (Frame *)current_node->data;
+        if(current_node->prev) {
+            prev_frame = (Frame *)current_node->prev->data;
+        } else {
+            prev_frame = (Frame *)list_last(current_node)->data;
+        }
+        duration = (prev_frame->duration ? prev_frame->duration : 1000);
+
         // FIXME: pausing breaks timing
-        if(!paused && (get_time_ms() / 1000 > frame_time / 1000)) {
+        if(!paused && (get_time_ms() / duration > frame_time / duration)) {
             if(current_node->prev) {
             assert(current_node->prev->data != NULL);
             }
 
             assert(current_node->data != NULL);
 
-            SDL_Log("current node: %p (%s)",
-                    current_node, ((Frame*)current_node->data)->filename);
+            SDL_Log("current node: %p (%s, %d)", current_node,
+                    current_frame->filename, current_frame->duration);
             render_frame(current_node, r);
 
             if(current_node->next != NULL) {

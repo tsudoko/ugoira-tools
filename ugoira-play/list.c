@@ -44,6 +44,19 @@ Node* list_head(Node *node)
     return node;
 }
 
+Node* list_last(Node *node)
+{
+    if(node == NULL) {
+        return node;
+    }
+
+    while(node->next != NULL) {
+        node = node->next;
+    }
+
+    return node;
+}
+
 void list_print(Node *node)
 {
     Node *i = NULL;
