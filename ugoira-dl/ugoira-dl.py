@@ -13,12 +13,13 @@ import sys
 import re
 
 SMALL_REGEX = "pixiv\.context\.ugokuIllustData            = (.*);pixiv"
+SMALL_REGEX_NOLOGIN = "pixiv\.context\.ugokuIllustData  = (.*\}\]\});"
 LARGE_REGEX = "pixiv\.context\.ugokuIllustFullscreenData  = (.*\}\]\});"
 
 verbose = False
 
 
-def get_metadata(text, regex=SMALL_REGEX):
+def get_metadata(text, regex=SMALL_REGEX_NOLOGIN):
     metadata = re.search(regex, text)
 
     if metadata is None:
@@ -27,16 +28,20 @@ def get_metadata(text, regex=SMALL_REGEX):
     return json.loads(metadata.group(1))
 
 
-def download_ugoira(url, cookies):
+def download_ugoira(url, cookies=None):
     if cookies:
         regex = LARGE_REGEX
     else:
-        regex = SMALL_REGEX
+        regex = SMALL_REGEX_NOLOGIN
 
     r = requests.get(url, cookies=cookies)
 
     metadata = get_metadata(r.text, regex)
     filename = metadata['src'].split('/')[-1]
+
+    if regex is not LARGE_REGEX:
+        print("%s: downloading small version of %s" %
+              (os.path.basename(sys.argv[0]), filename))
 
     if verbose:
         print("dl", filename)
@@ -55,6 +60,7 @@ def download_ugoira(url, cookies):
 
 def main():
     opts, args = getopt(sys.argv[1:], "vb:", ["verbose", "cookie-file="])
+    cookies = None
 
     for o, a in opts:
         if o in ("-b", "--cookie-file"):
@@ -68,10 +74,7 @@ def main():
               os.path.basename(sys.argv[0]), file=sys.stderr)
     else:
         for arg in args:
-            if cookies:
-                download_ugoira(arg, cookies)
-            else:
-                download_ugoira(arg)
+            download_ugoira(arg, cookies)
 
 if __name__ == "__main__":
     main()
