@@ -17,8 +17,9 @@ LARGE_REGEX = "pixiv\.context\.ugokuIllustFullscreenData  = (.*\}\]\});"
 
 verbose = False
 
+
 def get_metadata(text, regex=SMALL_REGEX):
-    metadata = re.search(regex, text);
+    metadata = re.search(regex, text)
 
     if metadata is None:
         raise Exception("couldn't find metadata")
@@ -40,7 +41,7 @@ def download_ugoira(url, cookies):
     if verbose:
         print("dl", filename)
 
-    r = requests.get(metadata['src'], headers={"Referer":url}, stream=True)
+    r = requests.get(metadata['src'], headers={"Referer": url}, stream=True)
 
     with open(filename, "wb") as f:
         for chunk in r.iter_content(chunk_size=1024):
