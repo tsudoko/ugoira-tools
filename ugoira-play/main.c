@@ -65,19 +65,6 @@ Node* generate_textures(Node *node, SDL_Renderer *r)
     return list_head(node);
 }
 
-uint64_t get_time_ms(void)
-{
-    uint64_t        ms;
-    time_t          s;
-    struct timespec spec;
-
-    clock_gettime(CLOCK_MONOTONIC, &spec);
-    s = spec.tv_sec;
-    ms = (uint64_t)(s * 1000) + (uint64_t)(spec.tv_nsec / 1.0e6);
-
-    return ms;
-}
-
 void render_frame(Node *node, SDL_Renderer *r)
 {
     SDL_RenderClear(r);
@@ -146,7 +133,7 @@ int main(int argc, char **argv)
     get_frame_durations(current_node, json_filename);
     free(json_filename);
 
-    if(SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());
 
         return 1;
@@ -186,7 +173,7 @@ int main(int argc, char **argv)
     SDL_SetWindowSize(w, width, height);
     SDL_ShowWindow(w);
 
-    uint64_t frame_time = get_time_ms();
+    uint64_t frame_time = SDL_GetTicks();
     //assert((int64_t)(frame_time - 1000) > 0);
     //frame_time -= 1000;
 
@@ -283,7 +270,7 @@ int main(int argc, char **argv)
         duration = (prev_frame->duration ? prev_frame->duration : 1000);
 
         // FIXME: pausing breaks timing
-        if(!paused && (get_time_ms() / duration > frame_time / duration)) {
+        if(!paused && (SDL_GetTicks() / duration > frame_time / duration)) {
             if(current_node->prev) {
             assert(current_node->prev->data != NULL);
             }
@@ -301,7 +288,7 @@ int main(int argc, char **argv)
                 current_node = list_head(current_node);
             }
 
-            frame_time = get_time_ms();
+            frame_time = SDL_GetTicks();
         }
 
         SDL_Delay(16);
