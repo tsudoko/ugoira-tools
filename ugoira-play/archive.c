@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <time.h>
 
 #include <archive.h>
 #include <archive_entry.h>

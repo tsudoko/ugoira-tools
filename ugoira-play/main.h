@@ -5,7 +5,6 @@
  */
 
 Node* generate_textures(Node *node, SDL_Renderer *r);
-uint64_t get_time_ms(void);
 void render_frame(Node *node, SDL_Renderer *r);
 void switch_filtering_mode(void);
 

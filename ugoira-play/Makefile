@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -Weverything -Wno-padded -Wno-documentation
-#CFLAGS = -Wall -Wextra -Wshadow -pedantic
+#CFLAGS = -Wall -Wextra -Wshadow -pedantic -std=c11
 CFLAGS += -g
 CFLAGS += -fsanitize=address
 
