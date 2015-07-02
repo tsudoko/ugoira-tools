@@ -21,48 +21,33 @@
 
 #include "main.h"
 
-Node* generate_textures(Node *node, SDL_Renderer *r)
+void generate_texture(Frame *frame, SDL_Renderer *r)
 {
-    assert(node->prev == NULL);
-
-    SDL_RWops   *current_rwop;
+    SDL_RWops   *current_rwops;
     SDL_Texture *current_texture;
 
-    Frame *frame;
+    current_rwops = SDL_RWFromMem(frame->image, frame->image_size);
 
-    for(;;) {
-        frame = (Frame*)node->data;
-
-        current_rwop = SDL_RWFromMem(frame->image, frame->image_size);
-
-        if(!current_rwop) {
-            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                         "couldn't create RWops: %s", SDL_GetError());
-        }
-
-        if(IMG_isJPG(current_rwop)) {
-            SDL_Log("(%p) loaded image is a JPG", node);
-        } else {
-            SDL_Log("(%p) loaded image is not a JPG", node);
-        }
-
-        current_texture = IMG_LoadTexture_RW(r, current_rwop, true);
-
-        if(!current_texture) {
-            SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                         "couldn't create texture: %s", IMG_GetError());
-        }
-
-        frame->texture = current_texture;
-
-        if(node->next == NULL) {
-            break;
-        }
-
-        node = node->next;
+    if(!current_rwops) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't create RWops: %s", SDL_GetError());
     }
 
-    return list_head(node);
+    if(IMG_isJPG(current_rwops)) {
+        SDL_Log("(%s) loaded image is a JPG", frame->filename);
+    } else {
+        SDL_Log("(%s) loaded image is not a JPG", frame->filename);
+    }
+
+    current_texture = IMG_LoadTexture_RW(r, current_rwops, true);
+
+    if(!current_texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                     "couldn't create texture: %s", IMG_GetError());
+    }
+
+    frame->texture = current_texture;
+    frame->need_redraw = false;
 }
 
 void render_frame(Node *node, SDL_Renderer *r)
@@ -70,7 +55,6 @@ void render_frame(Node *node, SDL_Renderer *r)
     SDL_RenderClear(r);
     SDL_RenderCopy(r, ((Frame*)node->data)->texture, NULL, NULL);
     SDL_RenderPresent(r);
-
 }
 
 void switch_filtering_mode(void)
@@ -164,7 +148,7 @@ int main(int argc, char **argv)
                      "renderer creation failed: %s", SDL_GetError());
     }
 
-    current_node = generate_textures(current_node, r);
+    generate_texture((Frame*)current_node->data, r);
 
     int width, height;
     SDL_QueryTexture(((Frame*)current_node->data)->texture,
@@ -173,7 +157,7 @@ int main(int argc, char **argv)
     SDL_SetWindowSize(w, width, height);
     SDL_ShowWindow(w);
 
-    uint64_t frame_time = SDL_GetTicks();
+    uint32_t frame_time = SDL_GetTicks();
     //assert((int64_t)(frame_time - 1000) > 0);
     //frame_time -= 1000;
 
@@ -210,7 +194,10 @@ int main(int argc, char **argv)
 
                             case SDLK_a: {
                                 switch_filtering_mode();
-                                generate_textures(list_head(current_node), r);
+                                for(Node *i = list_head(current_node);
+                                    i != NULL; i = i->next) {
+                                    ((Frame *)i->data)->need_redraw = true;
+                                }
                                 break;
                             }
 
@@ -268,6 +255,10 @@ int main(int argc, char **argv)
             prev_frame = (Frame *)list_last(current_node)->data;
         }
         duration = (prev_frame->duration ? prev_frame->duration : 1000);
+
+        if(((Frame *)current_node->data)->need_redraw) {
+            generate_texture((Frame *)current_node->data, r);
+        }
 
         // FIXME: pausing breaks timing
         if(!paused && (SDL_GetTicks() / duration > frame_time / duration)) {

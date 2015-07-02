@@ -91,6 +91,8 @@ Node* read_whole_archive(char *filename)
 
         frame->image = extracted_file;
         frame->image_size = total;
+
+        frame->need_redraw = true;
         frame->duration = 0;
 
         if(!start_node) {

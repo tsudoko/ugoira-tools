@@ -4,7 +4,7 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
-Node* generate_textures(Node *node, SDL_Renderer *r);
+void generate_texture(Frame *frame, SDL_Renderer *r);
 void render_frame(Node *node, SDL_Renderer *r);
 void switch_filtering_mode(void);
 
