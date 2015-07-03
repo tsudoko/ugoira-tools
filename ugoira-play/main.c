@@ -220,6 +220,8 @@ int main(int argc, char **argv)
                     Node *temp;
 
                     current_node = list_head(current_node);
+                    assert(current_node != NULL);
+
                     do {
                         Frame *frame = (Frame*)current_node->data;
 
@@ -263,7 +265,7 @@ int main(int argc, char **argv)
         // FIXME: pausing breaks timing
         if(!paused && (SDL_GetTicks() / duration > frame_time / duration)) {
             if(current_node->prev) {
-            assert(current_node->prev->data != NULL);
+                assert(current_node->prev->data != NULL);
             }
 
             assert(current_node->data != NULL);
