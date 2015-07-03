@@ -11,6 +11,38 @@
 #include "list.h"
 #include "frame.h"
 
+Frame* frame_create(void)
+{
+    Frame *frame = malloc(sizeof *frame);
+
+    strcpy(frame->filename, "undefined");
+    frame->need_redraw = true;
+    frame->duration = 0;
+
+    frame->image = NULL;
+    frame->image_size = 0;
+
+    frame->texture = NULL;
+
+    return frame;
+}
+
+void frame_destroy(Frame *frame)
+{
+    if(frame->image) {
+        free(frame->image);
+        frame->image = NULL;
+    }
+
+    if(frame->texture) {
+        SDL_DestroyTexture(frame->texture);
+        frame->texture = NULL;
+    }
+
+    free(frame);
+    frame = NULL;
+}
+
 Node* get_frame_with_filename(Node *node, const char *filename)
 {
     node = list_head(node);

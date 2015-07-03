@@ -225,14 +225,7 @@ int main(int argc, char **argv)
                     do {
                         Frame *frame = (Frame*)current_node->data;
 
-                        free(frame->image);
-                        frame->image = NULL;
-
-                        SDL_DestroyTexture(frame->texture);
-                        frame->texture = NULL;
-
-                        free(frame);
-                        frame = NULL;
+                        frame_destroy(frame);
 
                         temp = current_node->next;
 

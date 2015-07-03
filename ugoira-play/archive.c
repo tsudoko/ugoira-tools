@@ -57,7 +57,7 @@ Node* read_whole_archive(char *filename)
     }
 
     while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-        frame = malloc(sizeof *frame);
+        frame = frame_create();
 
         strcpy(frame->filename, archive_entry_pathname(entry));
 
@@ -91,9 +91,6 @@ Node* read_whole_archive(char *filename)
 
         frame->image = extracted_file;
         frame->image_size = total;
-
-        frame->need_redraw = true;
-        frame->duration = 0;
 
         if(!start_node) {
             start_node = list_create((Frame*)frame);
