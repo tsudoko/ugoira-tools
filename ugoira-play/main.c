@@ -163,6 +163,8 @@ int main(int argc, char **argv)
 
     SDL_Event e;
 
+    Node *redraw_node = current_node;
+
     Frame     *current_frame;
     Frame     *prev_frame;
     uint16_t   duration;
@@ -194,6 +196,7 @@ int main(int argc, char **argv)
 
                             case SDLK_a: {
                                 switch_filtering_mode();
+                                redraw_node = current_node;
                                 for(Node *i = list_head(current_node);
                                     i != NULL; i = i->next) {
                                     ((Frame *)i->data)->need_redraw = true;
@@ -251,8 +254,22 @@ int main(int argc, char **argv)
         }
         duration = (prev_frame->duration ? prev_frame->duration : 1000);
 
+
+        /*
         if(((Frame *)current_node->data)->need_redraw) {
             generate_texture((Frame *)current_node->data, r);
+        }
+        */
+
+        if(((Frame *)redraw_node->data)->need_redraw) {
+            SDL_Log("fast-redrawing %s", ((Frame *)redraw_node->data)->filename);
+            generate_texture((Frame *)redraw_node->data, r);
+        }
+
+        if(redraw_node->next) {
+            redraw_node = redraw_node->next;
+        } else {
+            redraw_node = list_head(redraw_node);
         }
 
         // FIXME: pausing breaks timing
