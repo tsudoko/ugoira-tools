@@ -1,0 +1,3 @@
+ - [ ] keep aspect ratio
+ - [ ] allow embedding into other windows, or the root X11 window at least
+ - [ ] fix memory leaks when redrawing
