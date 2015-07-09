@@ -31,12 +31,11 @@ void generate_texture(Frame *frame, SDL_Renderer *r)
     if(!current_rwops) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                      "couldn't create RWops: %s", SDL_GetError());
+        return;
     }
 
-    if(IMG_isJPG(current_rwops)) {
-        SDL_Log("(%s) loaded image is a JPG", frame->filename);
-    } else {
-        SDL_Log("(%s) loaded image is not a JPG", frame->filename);
+    if(frame->texture != NULL) {
+        SDL_DestroyTexture(frame->texture);
     }
 
     current_texture = IMG_LoadTexture_RW(r, current_rwops, true);
@@ -44,6 +43,7 @@ void generate_texture(Frame *frame, SDL_Renderer *r)
     if(!current_texture) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                      "couldn't create texture: %s", IMG_GetError());
+        return;
     }
 
     frame->texture = current_texture;
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
         */
 
         if(((Frame *)redraw_node->data)->need_redraw) {
-            SDL_Log("fast-redrawing %s", ((Frame *)redraw_node->data)->filename);
+            SDL_Log("generating %s", ((Frame *)redraw_node->data)->filename);
             generate_texture((Frame *)redraw_node->data, r);
         }
 
