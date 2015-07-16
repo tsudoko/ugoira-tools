@@ -158,8 +158,6 @@ int main(int argc, char **argv)
     SDL_ShowWindow(w);
 
     uint32_t frame_time = SDL_GetTicks();
-    //assert((int64_t)(frame_time - 1000) > 0);
-    //frame_time -= 1000;
 
     SDL_Event e;
 
@@ -175,7 +173,6 @@ int main(int argc, char **argv)
                 case SDL_WINDOWEVENT: {
                     switch(e.window.event) {
                         case SDL_WINDOWEVENT_EXPOSED: {
-                            //SDL_Log("window %d expose", e.window.windowID);
                             render_frame(current_node, r);
                             break;
                         }
@@ -253,13 +250,6 @@ int main(int argc, char **argv)
             prev_frame = (Frame *)list_last(current_node)->data;
         }
         duration = (prev_frame->duration ? prev_frame->duration : 1000);
-
-
-        /*
-        if(((Frame *)current_node->data)->need_redraw) {
-            generate_texture((Frame *)current_node->data, r);
-        }
-        */
 
         if(((Frame *)redraw_node->data)->need_redraw) {
             SDL_Log("generating %s", ((Frame *)redraw_node->data)->filename);

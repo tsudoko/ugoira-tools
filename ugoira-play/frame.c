@@ -96,22 +96,6 @@ void get_frame_durations(Node *node, const char *filename)
         return;
     }
 
-#if 0
-    const char *name_value;
-    frame_array = NULL;
-
-    if(json_unpack_ex(root, &error, 0, "{s:o}", &name_value, frame_array)) {
-        fprintf(stderr, "unpacking %s failed at line %d: %s\n",
-                filename, error.line, error.text);
-        json_decref(root);
-        return;
-    }
-
-    assert(strcmp(name_value, "frames") == 0);
-    free(name_value);
-    name_value = NULL;
-#endif
-
     frame_array = json_object_get(root, "frames");
 
     if(!json_is_array(frame_array)) {

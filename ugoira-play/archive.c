@@ -75,19 +75,15 @@ Node* read_whole_archive(char *filename)
         for(;;) {
             size = archive_read_data(a, buf, len_to_read);
 
-            //fprintf(stderr, "read %zu bytes\n", size);
             memcpy(pos, buf, (size_t)size);
             pos += size;
 
             if((size_t)size < sizeof(buf)) {
-                //fprintf(stderr, "read %s (%zd)\n",
-                //        archive_entry_pathname(entry), total);
                 break;
             }
         }
 
         assert(pos - total == extracted_file);
-        //free(extracted_file);
 
         frame->image = extracted_file;
         frame->image_size = total;
