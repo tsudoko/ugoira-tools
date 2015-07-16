@@ -1,8 +1,4 @@
-CC = clang
-CFLAGS = -Weverything -Wno-padded -Wno-documentation
-#CFLAGS = -Wall -Wextra -Wshadow -pedantic -std=c11
-CFLAGS += -g
-CFLAGS += -fsanitize=address
+include config.mk
 
 CFLAGS += -I/usr/include/SDL2
 LDFLAGS += -larchive  -ljansson  -lSDL2_image  -lSDL2 -lpthread  -lm
