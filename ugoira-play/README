@@ -1,0 +1,41 @@
+DISCLAIMER: This software is extremely poorly designed. Expect segfaults and
+            memory leaks.
+
+ugoira-player is a player for Pixiv's ugoira (moving picture) animations.
+To play something, you need a zip with the frames and the frame metadata.
+Frame metadata is stored in the ugokuIllustData JS object on the page, it will
+get extracted automatically if you use ugoira-dl.
+
+Frame metadata needs to have the same name as the zip with the frames, but with
+the "json" extension instead of "zip".
+
+Example:
+
+  ./ugoira.zip
+  ./ugoira.json
+
+  Contents of ugoira.json:
+
+  {
+      "mime_type": "image/jpeg",
+      "frames": [
+          {
+              "delay": 400,
+              "file": "000000.jpg"
+          },
+          {
+              "delay": 150,
+              "file": "000001.jpg"
+          },
+          ...
+      ],
+      "src": "http://i1.pixiv.net/img-zip-ugoira/img/..."
+  }
+
+Currently only the "frames" array is used. If frame data isn't found, frames are
+played with 1s duration each.
+
+How to compile
+--------------
+
+Check config.mk, comment/uncomment lines as needed, type `make'.
