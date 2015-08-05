@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     uint64_t  json_filename_length;
 
     json_filename_length = strlen(filename) + 1; // foo.zip -> foo.json
-    json_filename = (char *)malloc((json_filename_length + 1)* sizeof(char));
+    json_filename = (char *)malloc((json_filename_length + 1) * sizeof(char));
 
     if(!json_filename) {
         fprintf(stderr, "couldn't allocate memory for json_filename\n");
