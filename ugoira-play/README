@@ -39,3 +39,10 @@ How to compile
 --------------
 
 Check config.mk, comment/uncomment lines as needed, type `make'.
+
+Controls
+--------
+
+q - quit
+a - toggle antialiasing
+space - pause
