@@ -35,6 +35,13 @@ Example:
 Currently only the "frames" array is used. If frame data isn't found, frames are
 played with 1s duration each.
 
+Dependencies
+------------
+ 
+ - Jansson (http://www.digip.org/jansson/)
+ - libarchive (http://libarchive.org/)
+ - SDL 2 (http://libsdl.org/)
+
 How to compile
 --------------
 
