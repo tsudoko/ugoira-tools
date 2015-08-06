@@ -3,17 +3,23 @@ include config.mk
 CFLAGS += -I/usr/include/SDL2
 LDFLAGS += -larchive  -ljansson  -lSDL2_image  -lSDL2 -lpthread  -lm
 
+VPATH = src
+BUILDDIR = build
+
 SRC = list.c archive.c frame.c main.c
 OBJ = $(SRC:.c=.o)
 
 PREFIX ?= /usr/local
 
-ugoira-play: $(OBJ)
-	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJ) -o ugoira-play
+all: $(BUILDDIR)/ugoira-play
+
+$(BUILDDIR)/ugoira-play: $(OBJ)
+	if [ ! -d $(BUILDDIR) ]; then mkdir $(BUILDDIR); fi
+	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJ) -o "$@"
 
 obj: $(OBJ)
 
 clean:
-	rm $(OBJ) ugoira-play
+	rm $(OBJ) $(BUILDDIR)/ugoira-play
 
 .PHONY: clean

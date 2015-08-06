@@ -1,5 +1,5 @@
 # Uncomment relevant lines.
 
-include gcc.mk
-#include clang.mk
-#include debug.mk
+include mk/gcc.mk
+#include mk/clang.mk
+#include mk/debug.mk
