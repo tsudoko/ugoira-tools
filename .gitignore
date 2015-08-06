@@ -8,4 +8,4 @@
 /ugoira-dl/*.txt
 
 !/ugoira-dl/requirements.txt
-/ugoira-play/ugoira-play
+/ugoira-play/build
