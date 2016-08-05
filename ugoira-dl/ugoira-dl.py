@@ -7,11 +7,12 @@
 from getpass import getpass
 from getopt import getopt
 import http.cookiejar
-import requests
-import os.path
 import json
-import sys
+import os.path
 import re
+import sys
+
+import requests
 
 SMALL_REGEX = "pixiv\.context\.ugokuIllustData            = (.*);pixiv"
 SMALL_REGEX_NOLOGIN = "pixiv\.context\.ugokuIllustData  = (.*\}\]\});"
