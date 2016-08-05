@@ -85,41 +85,24 @@ main(int argc, char **argv)
     char *filename;
     bool  paused = false;
 
+    char   *json;
+    size_t  json_size;
+
     if(argc <= 1) {
-        fprintf(stderr, "usage: %s file.zip\n", basename(argv[0]));
+        fprintf(stderr, "usage: %s file.ugoira\n", basename(argv[0]));
         return 1;
     }
 
     filename = argv[1];
-    current_node = read_whole_archive(filename);
+    current_node = read_whole_archive(filename, &json, &json_size);
 
     if(!current_node) {
         fprintf(stderr, "no frames\n");
         return 1;
     }
 
-    char     *json_filename;
-    uint64_t  json_filename_length;
-
-    json_filename_length = strlen(filename) + 1; // foo.zip -> foo.json
-    json_filename = (char *)malloc((json_filename_length + 1) * sizeof(char));
-
-    if(!json_filename) {
-        fprintf(stderr, "couldn't allocate memory for json_filename\n");
-        return 1;
-    }
-
-
-    strcpy(json_filename, filename);
-
-    json_filename[json_filename_length - 4] =  'j';
-    json_filename[json_filename_length - 3] =  's';
-    json_filename[json_filename_length - 2] =  'o';
-    json_filename[json_filename_length - 1] =  'n';
-    json_filename[json_filename_length]     = '\0';
-
-    get_frame_durations(current_node, json_filename);
-    free(json_filename);
+    get_frame_durations(current_node, json, json_size);
+    free(json);
 
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());

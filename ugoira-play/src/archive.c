@@ -19,20 +19,56 @@
 
 #include "archive.h"
 
+char *
+read_archive_entry(struct archive *a, struct archive_entry *entry, OUT size_t *totalsize)
+{
+    size_t  total, len_to_read;
+    ssize_t size;
+    char    buf[4096];
+    char   *extracted_file;
+
+    printf("archive: reading %s\n", archive_entry_pathname(entry));
+    total = (size_t)archive_entry_size(entry);
+
+    if(total < sizeof(buf)) {
+        len_to_read = total;
+    } else {
+        len_to_read = sizeof(buf);
+    }
+
+    extracted_file = (char*)malloc(total);
+    char *pos = extracted_file;
+
+    for(;;) {
+       size = archive_read_data(a, buf, len_to_read);
+
+       memcpy(pos, buf, (size_t)size);
+       pos += size;
+
+       if((size_t)size < sizeof(buf)) {
+            break;
+        }
+    }
+
+    assert(pos - total == extracted_file);
+    if(totalsize != NULL) {
+        *totalsize = total;
+    }
+
+    return extracted_file;
+}
+
+
 Node *
-read_whole_archive(char *filename)
+read_whole_archive(IN char *filename, OUT char **json, OUT size_t *json_size)
 {
     struct archive *a;
     struct archive_entry *entry;
 
-    size_t  total, len_to_read;
-    ssize_t size;
-    char    buf[4096];
-
-    char      *extracted_file;
-    Node      *current_node = NULL, *start_node = NULL;
-
+    Node  *current_node = NULL, *start_node = NULL;
     Frame *frame;
+
+    const char *ename;
 
     int ret = ARCHIVE_FAILED;
 
@@ -58,36 +94,16 @@ read_whole_archive(char *filename)
     }
 
     while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        ename = archive_entry_pathname(entry);
+
+        if(strcmp(ename, "animation.json") == 0) {
+            *json = read_archive_entry(a, entry, json_size);
+            continue;
+        }
+
         frame = frame_create();
-
-        strcpy(frame->filename, archive_entry_pathname(entry));
-
-        total = (size_t)archive_entry_size(entry);
-
-        if(total < sizeof(buf)) {
-            len_to_read = total;
-        } else {
-            len_to_read = sizeof(buf);
-        }
-
-        extracted_file = (char*)malloc(total);
-        char *pos = extracted_file;
-
-        for(;;) {
-            size = archive_read_data(a, buf, len_to_read);
-
-            memcpy(pos, buf, (size_t)size);
-            pos += size;
-
-            if((size_t)size < sizeof(buf)) {
-                break;
-            }
-        }
-
-        assert(pos - total == extracted_file);
-
-        frame->image = extracted_file;
-        frame->image_size = total;
+        strcpy(frame->filename, ename);
+        frame->image = read_archive_entry(a, entry, &frame->image_size);
 
         if(!start_node) {
             start_node = list_create((Frame*)frame);

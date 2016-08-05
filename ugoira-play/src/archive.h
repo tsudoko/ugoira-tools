@@ -4,4 +4,7 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
-Node *read_whole_archive(char *filename);
+#define IN
+#define OUT
+
+Node *read_whole_archive(IN char *filename, OUT char **json, OUT size_t *json_size);

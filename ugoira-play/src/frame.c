@@ -69,7 +69,7 @@ get_frame_with_filename(Node *node, const char *filename)
 }
 
 void
-get_frame_durations(Node *node, const char *filename)
+get_frame_durations(Node *node, char *json, size_t json_size)
 {
     json_t       *root;
     json_error_t  error;
@@ -85,11 +85,11 @@ get_frame_durations(Node *node, const char *filename)
 
     assert(node->prev == NULL);
 
-    root = json_load_file(filename, 0, &error);
+    root = json_loadb(json, json_size, 0, &error);
 
     if(!root) {
-        fprintf(stderr, "decoding %s failed at line %d: %s\n",
-                filename, error.line, error.text);
+        fprintf(stderr, "decoding animation.json failed at line %d: %s\n",
+                error.line, error.text);
         json_decref(root);
         return;
     }
