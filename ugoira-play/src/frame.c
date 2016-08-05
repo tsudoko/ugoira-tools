@@ -11,7 +11,8 @@
 #include "list.h"
 #include "frame.h"
 
-Frame* frame_create(void)
+Frame *
+frame_create(void)
 {
     Frame *frame = malloc(sizeof *frame);
 
@@ -27,7 +28,8 @@ Frame* frame_create(void)
     return frame;
 }
 
-void frame_destroy(Frame *frame)
+void
+frame_destroy(Frame *frame)
 {
     if(frame->image) {
         free(frame->image);
@@ -43,7 +45,8 @@ void frame_destroy(Frame *frame)
     frame = NULL;
 }
 
-Node* get_frame_with_filename(Node *node, const char *filename)
+Node *
+get_frame_with_filename(Node *node, const char *filename)
 {
     node = list_head(node);
 
@@ -65,7 +68,8 @@ Node* get_frame_with_filename(Node *node, const char *filename)
     return NULL;
 }
 
-void get_frame_durations(Node *node, const char *filename)
+void
+get_frame_durations(Node *node, const char *filename)
 {
     json_t       *root;
     json_error_t  error;

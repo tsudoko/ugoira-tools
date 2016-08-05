@@ -21,7 +21,8 @@
 
 #include "main.h"
 
-void generate_texture(Frame *frame, SDL_Renderer *r)
+void
+generate_texture(Frame *frame, SDL_Renderer *r)
 {
     SDL_RWops   *current_rwops;
     SDL_Texture *current_texture;
@@ -50,14 +51,16 @@ void generate_texture(Frame *frame, SDL_Renderer *r)
     frame->need_redraw = false;
 }
 
-void render_frame(Node *node, SDL_Renderer *r)
+void
+render_frame(Node *node, SDL_Renderer *r)
 {
     SDL_RenderClear(r);
     SDL_RenderCopy(r, ((Frame*)node->data)->texture, NULL, NULL);
     SDL_RenderPresent(r);
 }
 
-void switch_filtering_mode(void)
+void
+switch_filtering_mode(void)
 {
     SDL_bool ret;
 
@@ -72,7 +75,8 @@ void switch_filtering_mode(void)
     }
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
     SDL_Window   *w;
     SDL_Renderer *r;

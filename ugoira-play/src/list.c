@@ -10,7 +10,8 @@
 
 #include "list.h"
 
-Node* list_create(void *data)
+Node *
+list_create(void *data)
 {
     Node *head = malloc(sizeof(Node));
     head->prev = NULL;
@@ -21,7 +22,8 @@ Node* list_create(void *data)
     return head;
 }
 
-Node* list_insert_after(Node *node, void *data)
+Node *
+list_insert_after(Node *node, void *data)
 {
     Node *new_node = list_create(data);
 
@@ -31,7 +33,8 @@ Node* list_insert_after(Node *node, void *data)
     return new_node;
 }
 
-Node* list_head(Node *node)
+Node *
+list_head(Node *node)
 {
     if(node == NULL) {
         return node;
@@ -44,7 +47,8 @@ Node* list_head(Node *node)
     return node;
 }
 
-Node* list_last(Node *node)
+Node *
+list_last(Node *node)
 {
     if(node == NULL) {
         return node;
@@ -57,7 +61,8 @@ Node* list_last(Node *node)
     return node;
 }
 
-void list_print(Node *node)
+void
+list_print(Node *node)
 {
     Node *i = NULL;
 

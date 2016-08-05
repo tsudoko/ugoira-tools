@@ -19,7 +19,8 @@
 
 #include "archive.h"
 
-Node* read_whole_archive(char *filename)
+Node *
+read_whole_archive(char *filename)
 {
     struct archive *a;
     struct archive_entry *entry;
