@@ -84,40 +84,39 @@ def download_ugoira(url, cookies=None):
 
 
 def main():
-    OPTS_SHORT = "b:c:p:u:Uv"
-    OPTS_LONG = ["cookie-file=", "--cookie-jar=", "password=", "username=",
+    OPTS_SHORT = "c:p:s:u:Uv"
+    OPTS_LONG = ["cookie-jar=", "password=", "username=", "session-id=",
                  "unattended"]
     opts, args = getopt(sys.argv[1:], OPTS_SHORT, OPTS_LONG)
 
     username = None
     password = None
-    cookie_output_filename = None
     cookies = None
+    cookie_output_filename = None
     unattended = False
 
     for o, a in opts:
-        if o in ("-b", "--cookie-file"):
-            cookies = http.cookiejar.MozillaCookieJar(a)
-            cookies.load()
+        if o in ("-s", "--session-id"):
+            cookies = {"PHPSESSID": a}
         elif o in ("-c", "--cookie-jar"):
             cookie_output_filename = a
         elif o in ("-u", "--username"):
             if cookies:
-                print("Using cookies from %s, ignoring username supplied from"
-                      "the command line" % cookies.filename)
+                print("Using PHPSESSID, ignoring username supplied from the"
+                      "command line")
             else:
                 username = a
         elif o in ("-p", "--password"):
             if cookies:
-                print("Using cookies from %s, ignoring password supplied from"
-                      "the command line" % cookies.filename)
+                print("Using PHPSESSID, ignoring password supplied from the"
+                      "command line" % cookies.filename)
             else:
                 password = a
         elif o in ("-U", "--unattended"):
             unattended = True
 
     if len(args) < 1:
-        print("usage: %s [-b cookie_jar] URL..." %
+        print("usage: %s [-s session_id] URL..." %
               os.path.basename(sys.argv[0]), file=sys.stderr)
     else:
         if username and password:
