@@ -14,19 +14,19 @@ Example:
   Contents of ugoira.json:
 
   {
+      "src": "http://i1.pixiv.net/img-zip-ugoira/img/...",
       "mime_type": "image/jpeg",
       "frames": [
           {
-              "delay": 400,
-              "file": "000000.jpg"
+              "file": "000000.jpg",
+              "delay": 400
           },
           {
-              "delay": 150,
-              "file": "000001.jpg"
+              "file": "000001.jpg",
+              "delay": 150
           },
           ...
-      ],
-      "src": "http://i1.pixiv.net/img-zip-ugoira/img/..."
+      ]
   }
 
 Currently only the "frames" array is used. If frame data isn't found, frames are
