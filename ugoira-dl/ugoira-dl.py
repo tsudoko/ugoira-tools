@@ -10,7 +10,9 @@ import http.cookiejar
 import json
 import os.path
 import re
+import shutil
 import sys
+import zipfile
 
 import requests
 
@@ -55,7 +57,7 @@ def get_metadata(text, regex=SMALL_REGEX_NOLOGIN):
     return metadata.group(1)
 
 
-def download_ugoira(url, cookies=None):
+def dl(url, cookies=None):
     if cookies:
         regex = LARGE_REGEX
     else:
@@ -81,14 +83,29 @@ def download_ugoira(url, cookies=None):
                 f.write(chunk)
                 f.flush()
 
-    with open(filename.replace(".zip", ".json"), "w") as f:
-        json.dump(metadata, f, indent=4)
+    metadata_filename = filename[:-4] + ".json"
+
+    with open(metadata_filename, "w") as f:
+        f.write(metadata)
+
+    return filename, metadata_filename
+
+
+def merge(zip_filename, json_filename):
+    outname = zip_filename[:-4] + ".ugoira"
+
+    print("merge (%s, %s) -> %s" % (zip_filename, json_filename, outname))
+
+    shutil.copyfile(zip_filename, outname)
+
+    with zipfile.ZipFile(outname, mode="a") as f:
+        f.write(json_filename, "animation.json")
 
 
 def main():
     OPTS_SHORT = "c:p:s:u:Uv"
     OPTS_LONG = ["cookie-jar=", "password=", "username=", "session-id=",
-                 "unattended"]
+                 "unattended", "keep-original"]
     opts, args = getopt(sys.argv[1:], OPTS_SHORT, OPTS_LONG)
 
     username = None
@@ -96,6 +113,7 @@ def main():
     cookies = None
     cookie_output_filename = None
     unattended = False
+    keep_original = False
 
     for o, a in opts:
         if o in ("-s", "--session-id"):
@@ -116,6 +134,8 @@ def main():
                 password = a
         elif o in ("-U", "--unattended"):
             unattended = True
+        elif o in ("-k", "--keep-original"):
+            keep_original = True
 
     if len(args) < 1:
         print("usage: %s [-s session_id] URL..." %
@@ -131,7 +151,12 @@ def main():
             cookies = pixiv_login(username, password)
 
         for arg in args:
-            download_ugoira(arg, cookies)
+            f, m = dl(arg, cookies)
+            merge(f, m)
+            if not keep_original:
+                print("rm", f, m)
+                os.remove(f)
+                os.remove(m)
 
         if (cookies and cookie_output_filename):
             save_cookies(cookies, cookie_output_filename)
