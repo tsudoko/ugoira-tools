@@ -19,7 +19,7 @@ typedef struct frame_t {
     SDL_Texture *texture;
 } Frame;
 
-Frame* frame_create(void);
+Frame *frame_create(void);
 void frame_destroy(Frame *frame);
-Node* get_frame_with_filename(Node *node, const char *filename);
+Node *get_frame_with_filename(Node *node, const char *filename);
 void get_frame_durations(Node *node, const char *filename);

@@ -4,4 +4,4 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
-Node* read_whole_archive(char *filename);
+Node *read_whole_archive(char *filename);
