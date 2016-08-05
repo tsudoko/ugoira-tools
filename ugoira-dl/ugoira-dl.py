@@ -52,7 +52,7 @@ def get_metadata(text, regex=SMALL_REGEX_NOLOGIN):
     if metadata is None:
         raise Exception("couldn't find metadata")
 
-    return json.loads(metadata.group(1))
+    return metadata.group(1)
 
 
 def download_ugoira(url, cookies=None):
@@ -64,7 +64,8 @@ def download_ugoira(url, cookies=None):
     r = requests.get(url, cookies=cookies)
 
     metadata = get_metadata(r.text, regex)
-    filename = metadata['src'].split('/')[-1]
+    src = json.loads(metadata)['src']
+    filename = src.split('/')[-1]
 
     if regex is not LARGE_REGEX:
         print("%s: downloading small version of %s" %
@@ -72,7 +73,7 @@ def download_ugoira(url, cookies=None):
 
     print("dl", filename)
 
-    r = requests.get(metadata['src'], headers={"Referer": url}, stream=True)
+    r = requests.get(src, headers={"Referer": url}, stream=True)
 
     with open(filename, "wb") as f:
         for chunk in r.iter_content(chunk_size=1024):
