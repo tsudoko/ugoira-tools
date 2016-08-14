@@ -1,6 +1,7 @@
 *.o
 
 # ugoira files
+*.ugoira
 *.json
 *.zip
 
