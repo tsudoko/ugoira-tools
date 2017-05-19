@@ -20,7 +20,7 @@
 #include "archive.h"
 
 char *
-read_archive_entry(struct archive *a, struct archive_entry *entry, OUT size_t *totalsize)
+read_archive_entry(struct archive *a, struct archive_entry *entry, size_t *totalsize)
 {
     size_t  total, len_to_read;
     ssize_t size;
@@ -60,15 +60,13 @@ read_archive_entry(struct archive *a, struct archive_entry *entry, OUT size_t *t
 
 
 Node *
-read_whole_archive(IN char *filename, OUT char **json, OUT size_t *json_size)
+read_whole_archive(char *filename)
 {
     struct archive *a;
     struct archive_entry *entry;
 
     Node  *current_node = NULL, *start_node = NULL;
     Frame *frame;
-
-    const char *ename;
 
     int ret = ARCHIVE_FAILED;
 
@@ -94,15 +92,8 @@ read_whole_archive(IN char *filename, OUT char **json, OUT size_t *json_size)
     }
 
     while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
-        ename = archive_entry_pathname(entry);
-
-        if(strcmp(ename, "animation.json") == 0) {
-            *json = read_archive_entry(a, entry, json_size);
-            continue;
-        }
-
         frame = frame_create();
-        strcpy(frame->filename, ename);
+        strcpy(frame->filename, archive_entry_pathname(entry));
         frame->image = read_archive_entry(a, entry, &frame->image_size);
 
         if(!start_node) {

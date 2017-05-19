@@ -3,20 +3,21 @@ To play something, you need a zip with the frames and the frame metadata.
 Frame metadata is stored in the ugokuIllustData JS object on the page, it will
 get extracted automatically if you use ugoira-dl.
 
-ugoira-play currently supports the unofficial ".ugoira" format, which is a zip
-file with an ".ugoira" extension and frame data in the "animation.json" file
-inside the zip file.
+Frame metadata needs to have the same name as the zip with the frames, but with
+the "json" extension instead of "zip".
 
 Example:
 
-  Contents of the zip file:
+  ./ugoira.zip
+  ./ugoira.json
+
+  Contents of ugoira.zip:
 
   ./000000.jpg
   ./000001.jpg
   ...
-  ./animation.json
 
-  Contents of animation.json:
+  Contents of ugoira.json:
 
   {
       "src": "http://i1.pixiv.net/img-zip-ugoira/img/...",

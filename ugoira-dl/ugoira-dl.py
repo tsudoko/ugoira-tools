@@ -91,17 +91,6 @@ def dl(url, cookies=None):
     return filename, metadata_filename
 
 
-def merge(zip_filename, json_filename):
-    outname = zip_filename[:-4] + ".ugoira"
-
-    print("merge (%s, %s) -> %s" % (zip_filename, json_filename, outname))
-
-    shutil.copyfile(zip_filename, outname)
-
-    with zipfile.ZipFile(outname, mode="a") as f:
-        f.write(json_filename, "animation.json")
-
-
 def main():
     OPTS_SHORT = "c:p:s:u:Uv"
     OPTS_LONG = ["cookie-jar=", "password=", "username=", "session-id=",
@@ -134,8 +123,6 @@ def main():
                 password = a
         elif o in ("-U", "--unattended"):
             unattended = True
-        elif o in ("-k", "--keep-original"):
-            keep_original = True
 
     if len(args) < 1:
         print("usage: %s [-s session_id] URL..." %
@@ -151,12 +138,7 @@ def main():
             cookies = pixiv_login(username, password)
 
         for arg in args:
-            f, m = dl(arg, cookies)
-            merge(f, m)
-            if not keep_original:
-                print("rm", f, m)
-                os.remove(f)
-                os.remove(m)
+            dl(arg, cookies)
 
         if (cookies and cookie_output_filename):
             save_cookies(cookies, cookie_output_filename)

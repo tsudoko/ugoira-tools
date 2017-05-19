@@ -21,6 +21,8 @@
 
 #include "main.h"
 
+#define NAMELEN 1024
+
 void
 generate_texture(Frame *frame, SDL_Renderer *r)
 {
@@ -85,24 +87,29 @@ main(int argc, char **argv)
     char *filename;
     bool  paused = false;
 
-    char   *json;
-    size_t  json_size;
+    char   json_filename[NAMELEN];
+    size_t json_filename_len;
 
     if(argc <= 1) {
-        fprintf(stderr, "usage: %s file.ugoira\n", basename(argv[0]));
+        fprintf(stderr, "usage: %s file.zip\n", basename(argv[0]));
         return 1;
     }
 
     filename = argv[1];
-    current_node = read_whole_archive(filename, &json, &json_size);
+    current_node = read_whole_archive(filename);
 
     if(!current_node) {
         fprintf(stderr, "no frames\n");
         return 1;
     }
 
-    get_frame_durations(current_node, json, json_size);
-    free(json);
+    json_filename_len = strlen(filename) + 1;
+    assert(json_filename_len < NAMELEN);
+
+    strncpy(json_filename, filename, NAMELEN);
+    strncpy(&json_filename[json_filename_len - 5], ".json", 5);
+
+    get_frame_durations(current_node, json_filename);
 
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0) {
         fprintf(stderr, "sdl initialization failed: %s\n", SDL_GetError());
