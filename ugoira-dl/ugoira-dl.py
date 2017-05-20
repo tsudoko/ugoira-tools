@@ -48,6 +48,76 @@ def pixiv_login(username, password):
     return s.cookies
 
 
+# TODO: R-18 support, requires API login
+def get_orig_frame_url(id_):
+    params = {"illust_id": id_}
+    detail = requests.get("https://app-api.pixiv.net/v1/illust/detail",
+                          params=params).json()
+
+    if not detail.get("illust") \
+    or not detail['illust'].get("meta_single_page") \
+    or not detail['illust']['meta_single_page'].get("original_image_url"):
+        print("%s: get_frames_api: unexpected json: %s" %
+              (os.path.basename(sys.argv[0]), detail), file=sys.syderr)
+        return None
+
+    url = detail['illust']['meta_single_page']['original_image_url']
+    return url.replace("_ugoira0.", "_ugoira{}.")
+
+
+def dl_orig(id_, metadata):
+    headers = {"Referer": "https://www.pixiv.net/"}
+    filename_format = "%06d.%s"
+    zipname = "{}_ugoiraorig.zip".format(id_)
+
+    url = get_orig_frame_url(id_)
+
+    if url is None:
+        return None
+
+    ext = url.split('.')[-1]
+    frames = []
+
+    for i in range(len(metadata['frames'])):
+        print("GET " + url.format(i))
+
+        r = requests.get(url.format(i), headers=headers)
+        if r.status_code != 200:
+            print("%s: error while downloading frame %d: %s" %
+                  (os.path.basename(sys.argv[0]), i, r.text), file=sys.stderr)
+            return None
+
+        frames.append(r.content)
+
+    with zipfile.ZipFile(zipname, "w") as f:
+        for i, frame in enumerate(frames):
+            f.writestr(filename_format % (i, ext), frame)
+
+    return zipname
+
+
+def dl_zip(src, regex, cookies=None):
+    headers = {"Referer": "https://www.pixiv.net/"}
+
+    filename = os.path.basename(src)
+
+    if regex is not LARGE_REGEX:
+        print("%s: downloading small version of %s" %
+              (os.path.basename(sys.argv[0]), filename))
+
+    print("GET", src)
+
+    r = requests.get(src, headers=headers, stream=True)
+
+    with open(filename, "wb") as f:
+        for chunk in r.iter_content(chunk_size=4096):
+            if chunk:
+                f.write(chunk)
+                f.flush()
+
+    return filename
+
+
 def get_metadata(text, regex=SMALL_REGEX_NOLOGIN):
     metadata = re.search(regex, text)
 
@@ -66,28 +136,19 @@ def dl(url, cookies=None):
     r = requests.get(url, cookies=cookies)
 
     metadata = get_metadata(r.text, regex)
+
     src = json.loads(metadata)['src']
-    filename = src.split('/')[-1]
+    ugoname = src.split('/')[-1]
 
-    if regex is not LARGE_REGEX:
-        print("%s: downloading small version of %s" %
-              (os.path.basename(sys.argv[0]), filename))
-
-    print("dl", filename)
-
-    r = requests.get(src, headers={"Referer": url}, stream=True)
-
-    with open(filename, "wb") as f:
-        for chunk in r.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-                f.flush()
+    filename = dl_orig(re.sub("_.*", "", ugoname), json.loads(metadata)) or \
+               dl_zip(src, regex, cookies)
 
     metadata_filename = filename[:-4] + ".json"
 
     with open(metadata_filename, "w") as f:
         f.write(metadata)
 
+    print(filename, "done")
     return filename, metadata_filename
 
 
