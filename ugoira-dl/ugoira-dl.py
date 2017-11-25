@@ -49,7 +49,7 @@ def get_orig_frame_url(metadata):
 def dl_orig(metadata):
     headers = {"Referer": "https://public-api.secure.pixiv.net/"}
     filename_format = "%06d.%s"
-    zipname = "{}_ugoiraorig.zip".format(metadata['id'])
+    zipname = "{}_ugoira.zip".format(metadata['id'])
 
     url = get_orig_frame_url(metadata)
 
