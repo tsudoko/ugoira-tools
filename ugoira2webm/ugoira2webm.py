@@ -4,9 +4,6 @@
 # Dedication license. Its contents can be found in the LICENSE file or at
 # <http://creativecommons.org/publicdomain/zero/1.0/>
 
-# XXX: not tested on non-jpg ugoira files, might need to reencode into a
-#      different (lossless) format
-
 from contextlib import contextmanager
 import json
 import os
@@ -27,13 +24,13 @@ def cd(newdir):
         os.chdir(olddir)
 
 
-def ugoira2mkv(filename):
-    with tempfile.TemporaryDirectory(prefix="ugoira2mkv") as d:
+def ugoira2webm(filename):
+    with tempfile.TemporaryDirectory(prefix="ugoira2webm") as d:
         frames = {}
         ffconcat = "ffconcat version 1.0\n"
 
         name = '.'.join(filename.split('.')[:-1])
-        mkv_filename = os.path.basename(name) + ".mkv"
+        webm_filename = os.path.basename(name) + ".webm"
 
         with zipfile.ZipFile(filename) as f:
             f.extractall(d)
@@ -49,13 +46,13 @@ def ugoira2mkv(filename):
             with open("i.ffconcat", "w") as f:
                 f.write(ffconcat)
 
-            p = os.popen("ffmpeg -i i.ffconcat -codec copy " + mkv_filename)
+            p = os.popen("ffmpeg -i i.ffconcat -c:v libvpx-vp9 -lossless 1 " + webm_filename)
             ret = p.close()
 
             if ret is not None:
                 exit(ret)
 
-        shutil.move(d + os.path.sep + mkv_filename, os.getcwd())
+        shutil.move(d + os.path.sep + webm_filename, os.getcwd())
 
 
 def main():
@@ -64,7 +61,7 @@ def main():
               file=sys.stderr)
 
     for i in sys.argv[1:]:
-        ugoira2mkv(i)
+        ugoira2webm(i)
 
 if __name__ == "__main__":
     main()
