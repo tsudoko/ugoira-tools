@@ -32,15 +32,16 @@ def ugoira2mkv(filename):
         frames = {}
         ffconcat = "ffconcat version 1.0\n"
 
-        mkv_filename = os.path.basename(filename[:-7] + ".mkv")
+        name = '.'.join(filename.split('.')[:-1])
+        mkv_filename = os.path.basename(name) + ".mkv"
 
         with zipfile.ZipFile(filename) as f:
             f.extractall(d)
 
-        with cd(d):
-            with open("animation.json") as f:
-                frames = json.load(f)['frames']
+        with open(name + ".json") as f:
+            frames = json.load(f)['frames']
 
+        with cd(d):
             for i in frames:
                 ffconcat += "file " + i['file'] + '\n'
                 ffconcat += "duration " + str(i['delay'] / 1000) + '\n'
