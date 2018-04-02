@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <libgen.h>
 #include <assert.h>
 #include <time.h>
 #include <math.h>
@@ -91,7 +90,7 @@ main(int argc, char **argv)
     size_t json_filename_len;
 
     if(argc <= 1) {
-        fprintf(stderr, "usage: %s file.zip\n", basename(argv[0]));
+        fprintf(stderr, "usage: %s file.zip\n", argv[0]);
         return 1;
     }
 
