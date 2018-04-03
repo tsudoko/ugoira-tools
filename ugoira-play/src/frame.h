@@ -4,10 +4,6 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
-#include <stdbool.h>
-
-#include <SDL.h>
-
 typedef struct frame_t {
     char     filename[11]; // "file"  in ugokuIllustData
     bool     need_redraw;

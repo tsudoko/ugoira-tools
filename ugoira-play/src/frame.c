@@ -5,8 +5,11 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
 
 #include <jansson.h>
+
+#include <SDL.h>
 
 #include "list.h"
 #include "frame.h"
