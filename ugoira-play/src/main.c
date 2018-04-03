@@ -18,8 +18,6 @@
 #include "archive.h"
 #include "frame.h"
 
-#include "main.h"
-
 #define NAMELEN 1024
 
 void
