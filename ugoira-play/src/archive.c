@@ -39,7 +39,7 @@ read_whole_archive(char *filename)
         mz_zip_reader_get_filename(&z, i, (char *)&frame->filename, sizeof frame->filename);
         frame->image = mz_zip_reader_extract_to_heap(&z, i, &frame->image_size, 0);
         if(frame->image == NULL) {
-            fprintf(stderr, "failed to read file %d: %s\n", i,
+            fprintf(stderr, "failed to load %s: %s\n", frame->filename,
                     mz_zip_get_error_string(z.m_last_error));
             return NULL;
         }
