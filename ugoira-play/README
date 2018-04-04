@@ -1,7 +1,7 @@
 ugoira-play is a player for Pixiv's ugoira (moving picture) animations.
-To play something, you need a zip with the frames and the frame metadata.
-Frame metadata is stored in the ugokuIllustData JS object on the page, it will
-get extracted automatically if you use ugoira-dl.
+To play something, you need a zip with frames and frame metadata.
+Frame metadata is stored in the ugokuIllustData JS object on the page; it's
+extracted automatically by ugoira-dl.
 
 Frame metadata needs to have the same name as the zip with the frames, but with
 the "json" extension instead of "zip".
