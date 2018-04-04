@@ -177,11 +177,7 @@ main(int argc, char **argv)
                     }
                     break;
                 case SDLK_SPACE:
-                    if(paused) {
-                        paused = false;
-                    } else {
-                        paused = true;
-                    }
+                    paused = !paused;
                     break;
                 }
                 break;
