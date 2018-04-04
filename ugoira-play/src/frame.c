@@ -6,9 +6,10 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <jansson.h>
-
 #include <SDL.h>
 
 #include "list.h"

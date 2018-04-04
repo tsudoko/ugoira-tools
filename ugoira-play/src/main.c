@@ -4,12 +4,13 @@
  * <http://creativecommons.org/publicdomain/zero/1.0/>
  */
 
+#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <string.h>
 #include <time.h>
-#include <math.h>
 
 #include <SDL.h>
 #include <SDL_image.h>
