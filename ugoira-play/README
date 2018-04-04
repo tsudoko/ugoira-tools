@@ -42,7 +42,7 @@ Dependencies
 ------------
  
  - Jansson (http://www.digip.org/jansson/)
- - libarchive (http://libarchive.org/)
+ - miniz (https://github.com/richgel999/miniz)
  - SDL 2 (http://libsdl.org/)
 
 How to compile

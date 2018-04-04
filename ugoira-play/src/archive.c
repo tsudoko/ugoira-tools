@@ -9,9 +9,7 @@
 #include <assert.h>
 #include <time.h>
 
-#include <archive.h>
-#include <archive_entry.h>
-
+#include <miniz.h>
 #include <SDL.h>
 
 #include "list.h"
@@ -19,82 +17,33 @@
 
 #include "archive.h"
 
-char *
-read_archive_entry(struct archive *a, struct archive_entry *entry, size_t *totalsize)
-{
-    size_t  total, len_to_read;
-    ssize_t size;
-    char    buf[4096];
-    char   *extracted_file;
-
-    printf("archive: reading %s\n", archive_entry_pathname(entry));
-    total = (size_t)archive_entry_size(entry);
-
-    if(total < sizeof(buf)) {
-        len_to_read = total;
-    } else {
-        len_to_read = sizeof(buf);
-    }
-
-    extracted_file = (char*)malloc(total);
-    char *pos = extracted_file;
-
-    for(;;) {
-       size = archive_read_data(a, buf, len_to_read);
-
-       memcpy(pos, buf, (size_t)size);
-       pos += size;
-
-       if((size_t)size < sizeof(buf)) {
-            break;
-        }
-    }
-
-    assert(pos - total == extracted_file);
-    if(totalsize != NULL) {
-        *totalsize = total;
-    }
-
-    return extracted_file;
-}
-
-
 Node *
 read_whole_archive(char *filename)
 {
-    struct archive *a;
-    struct archive_entry *entry;
+    mz_zip_archive z;
+    unsigned int n;
+    bool r;
 
     Node  *current_node = NULL, *start_node = NULL;
     Frame *frame;
 
-    int ret = ARCHIVE_FAILED;
-
-    if((a = archive_read_new()) == NULL) {
-        fprintf(stderr, "archive_read_new() failed: %d\n", ret);
+    mz_zip_zero_struct(&z);
+    if(!(r = mz_zip_reader_init_file(&z, filename, 0))) {
+        fprintf(stderr, "failed to open %s: %s\n", filename,
+                mz_zip_get_error_string(r));
         return NULL;
     }
 
-    ret = archive_read_support_format_zip(a);
-
-    if(ret != ARCHIVE_OK) {
-        fprintf(stderr, "archive_read_support_format_zip() failed: %d\n", ret);
-        archive_read_free(a);
-        return NULL;
-    }
-
-    ret = archive_read_open_filename(a, filename, 10240);
-
-    if(ret != ARCHIVE_OK) {
-        fprintf(stderr, "archive_read_open_filename() failed: %d\n", ret);
-        archive_read_free(a);
-        return NULL;
-    }
-
-    while(archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+    n = mz_zip_reader_get_num_files(&z);
+    for(unsigned int i = 0; i < n; i++) {
         frame = frame_create();
-        strcpy(frame->filename, archive_entry_pathname(entry));
-        frame->image = read_archive_entry(a, entry, &frame->image_size);
+        mz_zip_reader_get_filename(&z, i, (char *)&frame->filename, sizeof frame->filename);
+        frame->image = mz_zip_reader_extract_to_heap(&z, i, &frame->image_size, 0);
+        if(frame->image == NULL) {
+            fprintf(stderr, "failed to read file %d: %s\n", i,
+                    mz_zip_get_error_string(r));
+            return NULL;
+        }
 
         if(!start_node) {
             start_node = list_create((Frame*)frame);
@@ -106,6 +55,6 @@ read_whole_archive(char *filename)
         }       
     }
 
-    archive_read_free(a);
+    mz_zip_end(&z);
     return start_node;
 }
