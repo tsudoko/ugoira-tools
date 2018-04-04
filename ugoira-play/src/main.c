@@ -150,76 +150,66 @@ main(int argc, char **argv)
     for(;;) {
         while(SDL_PollEvent(&e)) {
             switch(e.type) {
-                case SDL_WINDOWEVENT: {
-                    switch(e.window.event) {
-                        case SDL_WINDOWEVENT_EXPOSED: {
-                            render_frame(current_node, r);
-                            break;
-                        }
+            case SDL_WINDOWEVENT:
+                if(e.window.event == SDL_WINDOWEVENT_EXPOSED) {
+                    render_frame(current_node, r);
+                }
+                break;
+            case SDL_KEYUP:
+                if(e.key.keysym.mod != KMOD_NONE) {
+                        break;
+                }
+
+                switch(e.key.keysym.sym) {
+                case SDLK_q: {
+                    SDL_Event quit_event;
+                    quit_event.type = SDL_QUIT;
+
+                    SDL_PushEvent(&quit_event);
+                    break;
+                }
+                case SDLK_a:
+                    switch_filtering_mode();
+                    redraw_node = current_node;
+                    for(Node *i = list_head(current_node);
+                        i != NULL; i = i->next) {
+                        ((Frame *)i->data)->need_redraw = true;
+                    }
+                    break;
+                case SDLK_SPACE:
+                    if(paused) {
+                        paused = false;
+                    } else {
+                        paused = true;
                     }
                     break;
                 }
+                break;
+            case SDL_QUIT:
+                SDL_Log("got quit event");
 
-                case SDL_KEYUP: {
-                    if(e.key.keysym.mod == KMOD_NONE) {
-                        switch(e.key.keysym.sym) {
-                            case SDLK_q: {
-                                SDL_Event quit_event;
-                                quit_event.type = SDL_QUIT;
+                Node *temp;
 
-                                SDL_PushEvent(&quit_event);
-                                break;
-                            }
+                current_node = list_head(current_node);
+                assert(current_node != NULL);
 
-                            case SDLK_a: {
-                                switch_filtering_mode();
-                                redraw_node = current_node;
-                                for(Node *i = list_head(current_node);
-                                    i != NULL; i = i->next) {
-                                    ((Frame *)i->data)->need_redraw = true;
-                                }
-                                break;
-                            }
+                do {
+                    Frame *frame = (Frame*)current_node->data;
 
-                            case SDLK_SPACE: {
-                                if(paused) {
-                                    paused = false;
-                                } else {
-                                    paused = true;
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }
+                    frame_destroy(frame);
 
-                case SDL_QUIT: {
-                    SDL_Log("got quit event");
+                    temp = current_node->next;
 
-                    Node *temp;
+                    free(current_node);
+                    current_node = NULL;
 
-                    current_node = list_head(current_node);
-                    assert(current_node != NULL);
+                    current_node = temp;
+                } while(current_node != NULL);
+                assert(temp == NULL);
 
-                    do {
-                        Frame *frame = (Frame*)current_node->data;
-
-                        frame_destroy(frame);
-
-                        temp = current_node->next;
-
-                        free(current_node);
-                        current_node = NULL;
-
-                        current_node = temp;
-                    } while(current_node != NULL);
-                    assert(temp == NULL);
-
-                    SDL_DestroyRenderer(r);
-                    SDL_DestroyWindow(w);
-                    exit(0);
-                }
+                SDL_DestroyRenderer(r);
+                SDL_DestroyWindow(w);
+                exit(0);
             }
         }
 
