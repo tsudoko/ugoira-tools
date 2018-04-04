@@ -119,24 +119,11 @@ main(int argc, char **argv)
                      "couldn't enable linear filtering");
     }
 
-    w = SDL_CreateWindow(filename,
-                         SDL_WINDOWPOS_UNDEFINED,
-                         SDL_WINDOWPOS_UNDEFINED,
-                         640,
-                         420,
-                         SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE);
-
-    if(!w) {
+    if(SDL_CreateWindowAndRenderer(640, 420,
+       SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE, &w, &r)) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                     "window creation failed: %s", SDL_GetError());
+                     "window/renderer creation failed: %s", SDL_GetError());
         return 1;
-    }
-
-    r = SDL_CreateRenderer(w, -1, 0);
-
-    if(!r) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                     "renderer creation failed: %s", SDL_GetError());
     }
 
     generate_texture((Frame*)current_node->data, r);
