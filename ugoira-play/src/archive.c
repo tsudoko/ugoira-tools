@@ -22,15 +22,14 @@ read_whole_archive(char *filename)
 {
     mz_zip_archive z;
     unsigned int n;
-    bool r;
 
     Node  *current_node = NULL, *start_node = NULL;
     Frame *frame;
 
     mz_zip_zero_struct(&z);
-    if(!(r = mz_zip_reader_init_file(&z, filename, 0))) {
+    if(!mz_zip_reader_init_file(&z, filename, 0)) {
         fprintf(stderr, "failed to open %s: %s\n", filename,
-                mz_zip_get_error_string(r));
+                mz_zip_get_error_string(z.m_last_error));
         return NULL;
     }
 
@@ -41,7 +40,7 @@ read_whole_archive(char *filename)
         frame->image = mz_zip_reader_extract_to_heap(&z, i, &frame->image_size, 0);
         if(frame->image == NULL) {
             fprintf(stderr, "failed to read file %d: %s\n", i,
-                    mz_zip_get_error_string(r));
+                    mz_zip_get_error_string(z.m_last_error));
             return NULL;
         }
 
