@@ -36,7 +36,7 @@ read_whole_archive(char *filename)
     n = mz_zip_reader_get_num_files(&z);
     for(unsigned int i = 0; i < n; i++) {
         frame = frame_create();
-        mz_zip_reader_get_filename(&z, i, (char *)&frame->filename, sizeof frame->filename);
+        mz_zip_reader_get_filename(&z, i, (char*)&frame->filename, sizeof frame->filename);
         frame->image = mz_zip_reader_extract_to_heap(&z, i, &frame->image_size, 0);
         if(frame->image == NULL) {
             fprintf(stderr, "failed to load %s: %s\n", frame->filename,
