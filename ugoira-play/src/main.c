@@ -133,6 +133,7 @@ main(int argc, char **argv)
     SDL_QueryTexture(((Frame*)current_node->data)->texture,
                      NULL, NULL, &width, &height);
 
+    SDL_SetWindowTitle(w, filename);
     SDL_SetWindowSize(w, width, height);
     SDL_ShowWindow(w);
 
