@@ -6,6 +6,8 @@
 
 from getpass import getpass
 from getopt import getopt
+import datetime
+import hashlib
 import json
 import os.path
 import re
@@ -16,9 +18,16 @@ import requests
 
 CLIENT_ID = "bYGKuGVw91e0NMfPGp44euvGt59s"
 CLIENT_SECRET = "HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK"
+TIME_SECRET = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
 
 
 def pixiv_login(username, password):
+    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
+    timehash = hashlib.md5(timestamp.encode() + TIME_SECRET.encode()).hexdigest()
+    headers = {
+        "x-client-time": timestamp,
+        "x-client-hash": timehash,
+    }
     data = {
         "username": username,
         "password": password,
@@ -27,7 +36,7 @@ def pixiv_login(username, password):
         "client_secret": CLIENT_SECRET,
     }
 
-    r = requests.post("https://oauth.secure.pixiv.net/auth/token", data=data)
+    r = requests.post("https://oauth.secure.pixiv.net/auth/token", data=data, headers=headers)
     r = r.json()
 
     if "response" not in r or "access_token" not in r['response']:
