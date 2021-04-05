@@ -158,7 +158,7 @@ def main():
     unattended = False
 
     for o, a in opts:
-        if o in ("-u", "--token"):
+        if o in ("-t", "--token"):
             token = a
         elif o in ("-u", "--username"):
             if token:
