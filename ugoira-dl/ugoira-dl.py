@@ -16,8 +16,8 @@ import zipfile
 
 import requests
 
-CLIENT_ID = "bYGKuGVw91e0NMfPGp44euvGt59s"
-CLIENT_SECRET = "HP3RmkgAmEGro0gn1x9ioawQE8WMfvLXDz3ZqxpK"
+CLIENT_ID = "MOBrBDS8blbauoSck0ZfDbtuzpyT"
+CLIENT_SECRET = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
 TIME_SECRET = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
 
 
