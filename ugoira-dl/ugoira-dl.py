@@ -21,20 +21,26 @@ CLIENT_SECRET = "lsACyCD94FhDUtGTXi3QzcFE2uU1hqtDaKeqrdwj"
 TIME_SECRET = "28c1fdd170a5204386cb1313c7077b34f83e4aaf4aa829ce78c231e05b0bae2c"
 
 
-def pixiv_login(username, password):
+def pixiv_login(*, username=None, password=None, refresh_token=None):
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
     timehash = hashlib.md5(timestamp.encode() + TIME_SECRET.encode()).hexdigest()
     headers = {
         "x-client-time": timestamp,
         "x-client-hash": timehash,
     }
+    assert (username and password) or refresh_token
     data = {
-        "username": username,
-        "password": password,
-        "grant_type": "password",
         "client_id": CLIENT_ID,
         "client_secret": CLIENT_SECRET,
     }
+
+    if refresh_token is not None:
+        data['grant_type'] = "refresh_token"
+        data['refresh_token'] = refresh_token
+    elif username is not None and password is not None:
+        data['grant_type'] = "password"
+        data['username'] = username
+        data['password'] = password
 
     r = requests.post("https://oauth.secure.pixiv.net/auth/token", data=data, headers=headers)
     r = r.json()
@@ -148,18 +154,21 @@ def dl(id_, token):
 
 def main():
     OPTS_SHORT = "p:s:u:t:Uv"
-    OPTS_LONG = ["password=", "username=", "token=",
+    OPTS_LONG = ["password=", "username=", "token=", "refresh-token=",
                  "unattended"]
     opts, args = getopt(sys.argv[1:], OPTS_SHORT, OPTS_LONG)
 
     username = None
     password = None
+    refresh_token = None
     token = None
     unattended = False
 
     for o, a in opts:
         if o in ("-t", "--token"):
             token = a
+        elif o in ("--refresh-token"):
+            refresh_token = a
         elif o in ("-u", "--username"):
             if token:
                 print("Using an access token, ignoring username supplied from"
@@ -179,14 +188,14 @@ def main():
         print("usage: %s [-t token] ID..." %
               os.path.basename(sys.argv[0]), file=sys.stderr)
     else:
-        if username and password:
-            token = pixiv_login(username, password)
+        if refresh_token:
+            token = pixiv_login(refresh_token=refresh_token)
+        elif username and password:
+            token = pixiv_login(username=username, password=password)
         elif not unattended and not token:
-            if not username:
-                username = input("Pixiv ID: ")
-            if not password:
-                password = getpass("Password: ")
-            token = pixiv_login(username, password)
+            if not refresh_token:
+                refresh_token = getpass("Refresh token (not echoed): ")
+            token = pixiv_login(refresh_token=refresh_token)
 
         for arg in args:
             if dl(arg, token):
